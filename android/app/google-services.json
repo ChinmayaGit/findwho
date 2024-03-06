@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "222776731320",
+    "project_id": "find-who-49149",
+    "storage_bucket": "find-who-49149.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222776731320:android:2b649ece25fc108dc6764d",
+        "android_client_info": {
+          "package_name": "com.findwho.findwho"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDC_A2hE-AbHiz0avZiPvfxs6B7-Irfy10"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
