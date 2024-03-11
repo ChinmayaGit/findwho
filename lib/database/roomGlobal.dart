@@ -96,10 +96,10 @@ void getAndDistributeOffline(List<AssetInfo> list1, List<AssetInfo> list2,
     });
   }
 
-  print('Selected Room names: $selectedRoomNames');
-  print('Selected Weapon names: $selectedWeaponNames');
-  print('Selected Person names: $selectedPersonNames');
-  print('Selected Solutions: $selectedSolutions');
+  // print('Selected Room names: $selectedRoomNames');
+  // print('Selected Weapon names: $selectedWeaponNames');
+  // print('Selected Person names: $selectedPersonNames');
+  // print('Selected Solutions: $selectedSolutions');
 
   selectedRoomNames.shuffle();
   selectedWeaponNames.shuffle();

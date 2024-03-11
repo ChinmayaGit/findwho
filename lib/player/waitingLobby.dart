@@ -34,7 +34,6 @@ class _WaitingLobbyState extends State<WaitingLobby> {
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () {
-              print(readyCount);
               setState(() {
                 _zoneDataFuture = getZoneData(); // Trigger data refresh
               });
@@ -132,7 +131,7 @@ class _WaitingLobbyState extends State<WaitingLobby> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                    "Name: ${zoneData[index]['player'].toString()} ${index + 1}"),
+                                                    "Name: ${zoneData[index]['player'].toString()}"),
                                                 Text(
                                                     "Dice: ${zoneData[index]['dice'].toString()}"),
                                                 Text(
@@ -220,7 +219,41 @@ class _WaitingLobbyState extends State<WaitingLobby> {
                             .update({
                           "ready": "Ready",
                         });
-                        await getZoneUserData();
+                        readyCount = 0;
+                        for (int i = 0; i < zoneData.length; i++) {
+                          if (zoneData[i]['ready'] == "Ready") {
+                            readyCount += 1;
+                          }
+                        }
+                        if(readyCount==zone?["PlayerCount"]){
+                          List<Map<String, dynamic>> resultsList = [];
+                          for (int i = 0; i < zoneData.length; i++) {
+                            // Create a temporary map to store values for this iteration
+                            Map<String, dynamic> tempMap = {
+                              "dice": zoneData[i]["dice"],
+                              "uid": zoneData[i]["uid"],
+                            };
+                            resultsList.add(tempMap);
+                          }
+                          resultsList.sort(
+                                  (a, b) => b["dice"].compareTo(a["dice"]));
+                          // print(resultsList[0]["uid"]);
+
+                          for (int i = 0; i < zoneData.length; i++) {
+                            FirebaseFirestore.instance
+                                .collection("zone")
+                                .doc(invitationCode)
+                                .collection("game")
+                                .doc(resultsList[i]["uid"])
+                                .update({
+                              "player": "Player ${i+1}",
+                              "turn": i+1
+                            });
+                          }
+                          await getZone();
+                          await getZoneUserData();
+                        }
+
                         setState(() {
                           _zoneDataFuture = getZoneData();
                           gogo = true; // Trigger data refresh
@@ -242,61 +275,52 @@ class _WaitingLobbyState extends State<WaitingLobby> {
                         ),
                       ),
                     )
-                  : gogo == false
+                  //todo gogo == true not false
+                  : gogo == true
                       ? GestureDetector(
                           onTap: () async {
-                            readyCount = 0;
-                            for (int i = 0; i < zoneData.length; i++) {
-                              if (zoneData[i]['ready'] == "Ready") {
-                                readyCount += 1;
-                              }
-                            }
                             if (zone?["PlayerCount"] == readyCount) {
-                              // FirebaseFirestore.instance
-                              //     .collection("users")
-                              //     .doc(authQuerySnapshot.data()!["uid"])
-                              //     .update({
-                              //   "inGame": "true",
-                              // });
+                              FirebaseFirestore.instance
+                                  .collection("users")
+                                  .doc(authQuerySnapshot.data()!["uid"])
+                                  .update({
+                                "inGame": "true",
+                              });
 
-                              List<Map<String, dynamic>> resultsList = [];
-                              for (int i = 0; i < zoneData.length; i++) {
-                                // Create a temporary map to store values for this iteration
-                                Map<String, dynamic> tempMap = {
-                                  "dice": zoneData[i]["dice"],
-                                  "uid": zoneData[i]["uid"],
-                                };
-                                resultsList.add(tempMap);
-                              }
-                              resultsList.sort(
-                                  (a, b) => b["dice"].compareTo(a["dice"]));
-                              print(resultsList[0]["uid"]);
-
-                              for (int i = 0; i < zoneData.length; i++) {
-                                FirebaseFirestore.instance
+                              if (zone?["RoomCreated"] == false) {
+                                await createItemsData();
+                                await fetchDataIfGameClosed();
+                                await fetchSolutionIfGameClosed();
+                                await FirebaseFirestore.instance
                                     .collection("zone")
                                     .doc(invitationCode)
-                                    .collection("game")
-                                    .doc(resultsList[i]["uid"])
                                     .update({
-                                  "player": "Player ${i + 1}",
-                                  "turn": i + 1
+                                  "RoomCreated": true,
+                                  // "turn": turnData,
                                 });
-                              }
-                              if (noOfPlayer == 0) {
-                                await getZone();
-                                noOfPlayer=zone['PlayerCount'];
-                                makeEqual();
+                                //create player turn
+                                // playersTurn.clear();
+                                // for(int i=0;i<zoneData.length;i++) {
+                                //   playersTurn.add(Player( name: zoneData[i]['player'],
+                                //       turnOrder: zoneData[i]['turn']));
+                                // }
+                                // for (var player in playersTurn) {
+                                //   print('Name: ${player.name}, Turn Order: ${player.turnOrder}');
+                                // }
+                                Get.to(const Home());
                               } else {
-                                makeEqual();
+                                await fetchDataIfGameClosed();
+                                await fetchSolutionIfGameClosed();
+                                // for(int i=0;i<zoneData.length;i++) {
+                                //   playersTurn.add(Player( name: zoneData[i]['player'],
+                                //       turnOrder: zoneData[i]['turn']));
+                                // }
+                                // print('chinu');
+                                // for (var player in playersTurn) {
+                                //   print('Name: ${player.name}, Turn Order: ${player.turnOrder}');
+                                // }
+                                Get.to(const Home());
                               }
-
-//                                 if (sortedDiceLists.length > 1) {
-//                                   print(sortedDiceLists[1]);
-//                                 } else {
-//                                   print('sortedDiceLists does not have enough elements');
-//                                 }
-                              // Get.to(const Home());
                             } else {
                               customToast(
                                   msg:

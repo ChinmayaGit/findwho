@@ -63,43 +63,197 @@ class AssetInfo {
   bool state;
 
   AssetInfo(this.img, this.name, this.state);
+
+  // Convert AssetInfo to a map
+  Map<String, dynamic> toMap() {
+    return {
+      'img': img,
+      'name': name,
+      'state': state,
+    };
+  }
 }
 
 List<AssetInfo> listRoom = [];
 List<AssetInfo> listWeapon = [];
 List<AssetInfo> listPerson = [];
+
 List<AssetInfo> tempListRoom = [];
 List<AssetInfo> tempListWeapon = [];
 List<AssetInfo> tempListPerson = [];
 
-// Fetch data from Firestore collections and store
-Future<void> fetchItemsData() async {
-  // Fetch data from Firestore collections
-  QuerySnapshot roomSnapshot =
-      await FirebaseFirestore.instance.collection('room').get();
-  QuerySnapshot weaponSnapshot =
-      await FirebaseFirestore.instance.collection('weapon').get();
-  QuerySnapshot personSnapshot =
-      await FirebaseFirestore.instance.collection('person').get();
+List<AssetInfo> playersRoom = [];
+List<AssetInfo> playersWeapon = [];
+List<AssetInfo> playersPerson = [];
 
-  // Clear existing data
+List<AssetInfo> solutionRoom = [];
+List<AssetInfo> solutionWeapon = [];
+List<AssetInfo> solutionPerson = [];
+
+// Fetch data from Firestore collections and store
+Future<void> createItemsData() async {
+  DocumentSnapshot<Map<String, dynamic>> dataSnapshot =
+      await FirebaseFirestore.instance.collection('data').doc('rwp').get();
+
+// Clear existing data
   tempListRoom.clear();
   tempListWeapon.clear();
   tempListPerson.clear();
 
-  // Parse data from snapshots into AssetInfo instances
-  tempListRoom.addAll(roomSnapshot.docs
-      .map((doc) => AssetInfo(doc['img'], doc['name'], doc['state'])));
-  tempListWeapon.addAll(weaponSnapshot.docs
-      .map((doc) => AssetInfo(doc['img'], doc['name'], doc['state'])));
-  tempListPerson.addAll(personSnapshot.docs
-      .map((doc) => AssetInfo(doc['img'], doc['name'], doc['state'])));
+// Parse data from snapshot into AssetInfo instances
+  Map<String, dynamic> data = dataSnapshot.data()!;
+  tempListRoom.addAll((data['rooms'] as List<dynamic>)
+      .map((room) => AssetInfo(room['img'], room['name'], room['state'])));
+  tempListWeapon.addAll((data['weapons'] as List<dynamic>).map(
+      (weapon) => AssetInfo(weapon['img'], weapon['name'], weapon['state'])));
+  tempListPerson.addAll((data['persons'] as List<dynamic>).map(
+      (person) => AssetInfo(person['img'], person['name'], person['state'])));
+
+  await createSolution();
+  await makeEqual();
+  await distributeInPlayer("room", tempListRoom, noOfPlayer);
+  await distributeInPlayer("weapon", tempListWeapon, noOfPlayer);
+  await distributeInPlayer("person", tempListPerson, noOfPlayer);
 }
 
 // End
-makeEqual() async {
-  await fetchItemsData();
+//This will fetch the data for if game get close and start from where they left
+Future<void> fetchDataIfGameClosed() async {
+  try {
+    DocumentSnapshot<Map<String, dynamic>> combinedDataSnapshot =
+        await FirebaseFirestore.instance
+            .collection("zone")
+            .doc(invitationCode)
+            .collection("data")
+            .doc('combinedData')
+            .get();
 
+    if (combinedDataSnapshot.exists) {
+      Map<String, dynamic> combinedData = combinedDataSnapshot.data()!;
+      List<Map<String, dynamic>> roomData =
+          List<Map<String, dynamic>>.from(combinedData['rooms']);
+      List<Map<String, dynamic>> weaponData =
+          List<Map<String, dynamic>>.from(combinedData['weapons']);
+      List<Map<String, dynamic>> personData =
+          List<Map<String, dynamic>>.from(combinedData['persons']);
+
+      listRoom.clear();
+      listWeapon.clear();
+      listPerson.clear();
+
+      listRoom.addAll(roomData
+          .map((room) => AssetInfo(room['img'], room['name'], room['state'])));
+      listWeapon.addAll(weaponData.map((weapon) =>
+          AssetInfo(weapon['img'], weapon['name'], weapon['state'])));
+      listPerson.addAll(personData.map((person) =>
+          AssetInfo(person['img'], person['name'], person['state'])));
+
+      print('Data retrieved from Firestore and stored successfully.');
+    } else {
+      print('Combined document does not exist in Firestore.');
+    }
+  } catch (error) {
+    print('Error fetching and storing data from Firestore: $error');
+  }
+}
+
+createSolution() async {
+  // Randomly select one item from listRoom
+
+  if (tempListRoom.isNotEmpty) {
+    int randomIndex = Random().nextInt(tempListRoom.length);
+    // Add and remove value from index
+    AssetInfo room = tempListRoom.removeAt(randomIndex);
+    // AssetInfo room = listRoom[randomIndex];
+    // Add the selected item to the solutionRoom list
+    solutionRoom.clear(); // Clear the list before adding the new item
+    solutionRoom.add(room);
+  }
+
+  // Randomly select one item from listWeapon
+  if (tempListWeapon.isNotEmpty) {
+    int randomIndex = Random().nextInt(tempListWeapon.length);
+    // Add and remove value from index
+    AssetInfo room = tempListWeapon.removeAt(randomIndex);
+    // AssetInfo room = listWeapon[randomIndex];
+    // Add the selected item to the solutionRoom list
+    solutionWeapon.clear(); // Clear the list before adding the new item
+    solutionWeapon.add(room);
+  }
+
+  // Randomly select one item from listPerson
+  if (tempListPerson.isNotEmpty) {
+    int randomIndex = Random().nextInt(tempListPerson.length);
+    // Add and remove value from index
+    AssetInfo room = tempListPerson.removeAt(randomIndex);
+    // AssetInfo room = listPerson[randomIndex];
+    // Add the selected item to the solutionRoom list
+    solutionPerson.clear(); // Clear the list before adding the new item
+    solutionPerson.add(room);
+  }
+
+  // Print the length of solutionRoom and listRoom
+  // print("Length of solutionRoom: ${solutionRoom.length}");
+  // print("Length of solutionRoom: ${solutionWeapon.length}");
+  // print("Length of solutionRoom: ${solutionPerson.length}");
+  // print("Length of listRoom: ${listRoom.length}");
+  // print("Length of listRoom: ${listWeapon.length}");
+  // print("Length of listRoom: ${listPerson.length}");
+  // print("Length of solutionRoom: ${solutionRoom[0].name}");
+
+  FirebaseFirestore.instance
+      .collection("zone")
+      .doc(invitationCode)
+      .collection('solution')
+      .doc("combinedSolution").set(
+    {
+      "room": {
+        "img": solutionRoom[0].img,
+        "name": solutionRoom[0].name,
+        "state": solutionRoom[0].state,
+      },
+      "weapon": {
+        "img": solutionWeapon[0].img,
+        "name": solutionWeapon[0].name,
+        "state": solutionWeapon[0].state,
+      },
+      "person": {
+        "img": solutionPerson[0].img,
+        "name": solutionPerson[0].name,
+        "state": solutionPerson[0].state,
+      }
+    },);
+
+}
+//as only
+fetchSolutionIfGameClosed() async{
+  try {
+    DocumentSnapshot<Map<String, dynamic>> comboSolutionSnapshot =
+        await FirebaseFirestore.instance
+        .collection("zone")
+        .doc(invitationCode)
+        .collection('solution')
+        .doc("combinedSolution")
+        .get();
+
+    if (comboSolutionSnapshot.exists) {
+      Map<String, dynamic> comboSolutionData = comboSolutionSnapshot.data()!;
+      Map<String, dynamic> roomData = comboSolutionData['room'];
+      Map<String, dynamic> weaponData = comboSolutionData['weapon'];
+      Map<String, dynamic> personData = comboSolutionData['person'];
+
+      solutionRoom.add(AssetInfo(roomData['img'], roomData['name'], roomData['state']));
+      solutionWeapon.add(AssetInfo(weaponData['img'], weaponData['name'], weaponData['state']));
+      solutionPerson.add(AssetInfo(personData['img'], personData['name'], personData['state']));
+    }
+
+    print('Data retrieved from Firestore and stored successfully.');
+  } catch (error) {
+    print('Error fetching and storing data from Firestore: $error');
+  }
+}
+
+makeEqual() async {
   // Calculate size of each sublist
   int roomSize = (tempListRoom.length / noOfPlayer).floor();
   int weaponSize = (tempListWeapon.length / noOfPlayer).floor();
@@ -117,128 +271,176 @@ makeEqual() async {
 
   // Store sublist based on user input
   for (int i = 0; i < tempListRoom.length - roomRemainder;) {
-    listRoom.addAll(tempListRoom.sublist(i, min(i + roomSize, tempListRoom.length)));
+    listRoom.addAll(
+        tempListRoom.sublist(i, min(i + roomSize, tempListRoom.length)));
     i += roomSize;
   }
 
   for (int i = 0; i < tempListWeapon.length - weaponRemainder;) {
-    listWeapon.addAll(tempListWeapon.sublist(i, min(i + weaponSize, tempListWeapon.length)));
+    listWeapon.addAll(
+        tempListWeapon.sublist(i, min(i + weaponSize, tempListWeapon.length)));
     i += weaponSize;
   }
 
   for (int i = 0; i < tempListPerson.length - personRemainder;) {
-    listPerson.addAll(tempListPerson.sublist(i, min(i + personSize, tempListPerson.length)));
+    listPerson.addAll(
+        tempListPerson.sublist(i, min(i + personSize, tempListPerson.length)));
     i += personSize;
   }
 
+  List<Map<String, dynamic>> roomData =
+  listRoom.map((room) => room.toMap()).toList();
+  List<Map<String, dynamic>> roomSolutionData =
+  solutionRoom.map((room) => room.toMap()).toList();
+  List<Map<String, dynamic>> weaponData =
+  listWeapon.map((weapon) => weapon.toMap()).toList();
+  List<Map<String, dynamic>> weaponSolutionData =
+  solutionWeapon.map((weapon) => weapon.toMap()).toList();
+  List<Map<String, dynamic>> personData =
+  listPerson.map((person) => person.toMap()).toList();
+  List<Map<String, dynamic>> personSolutionData =
+  solutionPerson.map((person) => person.toMap()).toList();
+  Random random = Random();
+
+// Shuffle function to shuffle a list
+  // Shuffle function to shuffle a list
+  List<T> shuffleList<T>(List<T> list) {
+    for (int i = list.length - 1; i > 0; i--) {
+      int j = random.nextInt(i + 1);
+      T temp = list[i];
+      list[i] = list[j];
+      list[j] = temp;
+    }
+    return list;
+  }
+
+// Function to merge and shuffle the original and solution lists
+  List<Map<String, dynamic>> mergeAndShuffleLists(
+      List<Map<String, dynamic>> originalData,
+      List<Map<String, dynamic>> solutionData) {
+    // Combine the original and solution lists
+    List<Map<String, dynamic>> combinedData =
+    List.from(originalData)..addAll(solutionData);
+
+    // Shuffle the combined list
+    return shuffleList(combinedData);
+  }
+
+// Shuffle the solution lists
+  List<Map<String, dynamic>> shuffledRoomData =
+  mergeAndShuffleLists(roomData, roomSolutionData);
+  List<Map<String, dynamic>> shuffledWeaponData =
+  mergeAndShuffleLists(weaponData, weaponSolutionData);
+  List<Map<String, dynamic>> shuffledPersonData =
+  mergeAndShuffleLists(personData, personSolutionData);
+
+// Combine the shuffled lists into the combinedData map
+  Map<String, dynamic> combinedData = {
+    'rooms': shuffledRoomData,
+    'weapons': shuffledWeaponData,
+    'persons': shuffledPersonData,
+  };
+
+  try {
+    // Save the combined data to Firestore
+    await FirebaseFirestore.instance
+        .collection("zone")
+        .doc(invitationCode)
+        .collection("data")
+        .doc('combinedData')
+        .set(combinedData);
+    print('Data added to Firestore successfully.');
+  } catch (error) {
+    print('Error adding data to Firestore: $error');
+  }
+
   // Print the stored data
-  print("listRoom:");
-  print(listRoom.length);
+  // print("listRoom:");
+  // print(listRoom.length);
   // listRoom.forEach((asset) {
   //   print(asset.img);
   //   print(asset.name);
   //   print(asset.state);
   // });
 
-  print("listWeapon:");
-  print(listWeapon.length);
+  // print("listWeapon:");
+  // print(listWeapon.length);
   // listWeapon.forEach((asset) {
   //   print(asset.img);
   //   print(asset.name);
   //   print(asset.state);
   // });
 
-  print("listPerson:");
-  print(listPerson.length);
+  // print("listPerson:");
+  // print(listPerson.length);
   // listPerson.forEach((asset) {
   //   print(asset.img);
   //   print(asset.name);
   //   print(asset.state);
   // });
-  getSolution();
 }
 
-List<AssetInfo> solutionRoom = [];
-List<AssetInfo> solutionWeapon = [];
-List<AssetInfo> solutionPerson = [];
+distributeInPlayer(
+    String id, List<AssetInfo> assets, int numberOfHalves) async {
+  // Calculate the size of each sublist
+  int sublistSize = (assets.length / numberOfHalves).floor();
 
-void getSolution() async {
-  // Randomly select one item from listRoom
+  // Shuffle the assets list randomly
+  assets.shuffle();
 
-  if (listRoom.isNotEmpty) {
-    int randomIndex = Random().nextInt(listRoom.length);
-    // Add and remove value from index
-    // AssetInfo room = listRoom.removeAt(randomIndex);
-    AssetInfo room = listRoom[randomIndex];
-    // Add the selected item to the solutionRoom list
-    solutionRoom.clear(); // Clear the list before adding the new item
-    solutionRoom.add(room);
+  // Create a map to store player data
+  Map<String, List<Map<String, dynamic>>> players = {};
+
+  // Distribute assets to players
+  for (int i = 0; i < numberOfHalves; i++) {
+    String uid = zoneData[i]['uid']; // Get UID from zoneData
+
+    List<Map<String, dynamic>> sublist = assets
+        .sublist(i * sublistSize, (i + 1) * sublistSize)
+        .map((asset) => {
+              "img": asset.img,
+              "name": asset.name,
+              "state": asset.state,
+            })
+        .toList();
+
+    // Assign sublist to player with UID as key
+    players[uid] = sublist;
   }
 
-  // Randomly select one item from listWeapon
-  if (listWeapon.isNotEmpty) {
-    int randomIndex = Random().nextInt(listWeapon.length);
-    // Add and remove value from index
-    // AssetInfo room = listRoom.removeAt(randomIndex);
-    AssetInfo room = listWeapon[randomIndex];
-    // Add the selected item to the solutionRoom list
-    solutionWeapon.clear(); // Clear the list before adding the new item
-    solutionWeapon.add(room);
-  }
+  // Print player data (for demonstration)
+  // players.forEach((key, value) {
+  //   print('UID: $key:');
+  //   value.forEach((asset) {
+  //     print('"img": ${asset["img"]}, "name": ${asset["name"]}, "state": ${asset["state"]}');
+  //   });
+  // });
 
-  // Randomly select one item from listPerson
-  if (listPerson.isNotEmpty) {
-    int randomIndex = Random().nextInt(listPerson.length);
-    // Add and remove value from index
-    // AssetInfo room = listRoom.removeAt(randomIndex);
-    AssetInfo room = listPerson[randomIndex];
-    // Add the selected item to the solutionRoom list
-    solutionPerson.clear(); // Clear the list before adding the new item
-    solutionPerson.add(room);
-  }
-
-  // Print the length of solutionRoom and listRoom
-  // print("Length of solutionRoom: ${solutionRoom.length}");
-  // print("Length of solutionRoom: ${solutionWeapon.length}");
-  // print("Length of solutionRoom: ${solutionPerson.length}");
-  // print("Length of listRoom: ${listRoom.length}");
-  // print("Length of listRoom: ${listWeapon.length}");
-  // print("Length of listRoom: ${listPerson.length}");
-  // print("Length of solutionRoom: ${solutionRoom[0].name}");
-
-  WriteBatch batch = FirebaseFirestore.instance.batch();
-
-  batch.set(
-    FirebaseFirestore.instance.collection("zone").doc(invitationCode).collection('solution').doc('room'),
-    {
-      "img": solutionRoom[0].img,
-      "name": solutionRoom[0].name,
-      "state": solutionRoom[0].state,
-    },
-  );
-
-  batch.set(
-    FirebaseFirestore.instance.collection("zone").doc(invitationCode).collection('solution').doc('weapon'),
-    {
-      "img": solutionWeapon[0].img,
-      "name": solutionWeapon[0].name,
-      "state": solutionWeapon[0].state,
-    },
-  );
-
-  batch.set(
-    FirebaseFirestore.instance.collection("zone").doc(invitationCode).collection('solution').doc('person'),
-    {
-      "img": solutionPerson[0].img,
-      "name": solutionPerson[0].name,
-      "state": solutionPerson[0].state,
-    },
-  );
-
-  await batch.commit();
-
+  // Store player data in Firestore
+  storePlayerData(players, id);
 }
 
-void distributeInPlayer() {
+storePlayerData(Map<String, List<Map<String, dynamic>>> players, String id) {
+  // Iterate over each player
+  players.forEach((uid, value) async {
+    // Create a map to hold the field to update
+    Map<String, dynamic> updateData = {};
 
+    // Conditionally populate the updateData map based on the id
+    if (id == 'room') {
+      updateData['room'] = value;
+    } else if (id == 'weapon') {
+      updateData['weapon'] = value;
+    } else if (id == 'person') {
+      updateData['person'] = value;
+    }
+
+    // Update Firestore document with player data
+    await FirebaseFirestore.instance
+        .collection("zone")
+        .doc(invitationCode)
+        .collection("game")
+        .doc(uid)
+        .update(updateData);
+  });
 }

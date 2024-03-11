@@ -88,10 +88,11 @@ class SelectBoard extends StatelessWidget {
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: GestureDetector(
+                        child:createWait.value==false? GestureDetector(
                           onTap: () {
+                            createWait.value = true;
                             noOfPlayer = controller.count.value;
-                            getData().then((value) async{
+                            getData().then((value) async {
                               invitationCode = generateInvitationCode();
                               await FirebaseFirestore.instance
                                   .collection("zone")
@@ -99,14 +100,16 @@ class SelectBoard extends StatelessWidget {
                                   .set({
                                 "PlayerCount": noOfPlayer,
                                 "InvitationCode": invitationCode,
-                                "Date":DateTime.now(),
-                                "Colors":{
-                                  "Red":false,
-                                  "Green":false,
-                                  "Blue":false,
-                                  "Yellow":false,
-                                  "Orange":false,
-                                  "Purple":false,
+                                "Date": DateTime.now(),
+                                "RoomCreated": false,
+                                "playing":1,
+                                "Colors": {
+                                  "Red": false,
+                                  "Green": false,
+                                  "Blue": false,
+                                  "Yellow": false,
+                                  "Orange": false,
+                                  "Purple": false,
                                 },
                               });
                               await FirebaseFirestore.instance
@@ -122,8 +125,18 @@ class SelectBoard extends StatelessWidget {
                                 "weapon": "na",
                                 "person": "na",
                                 "uid": authQuerySnapshot.data()!["uid"],
-                                "turn": 0,
-                                "ready":"Not Ready"
+                                "ready": "Not Ready",
+                                "turn": "",
+                                "times": {
+                                  "room": 1,
+                                  "weapon": 1,
+                                  "person": 1,
+                                },
+                                "solutionFound": {
+                                  "room": {},
+                                  "weapon": {},
+                                  "person": {},
+                                },
                               });
                               Get.to(OnlinePlayers());
                             });
@@ -145,7 +158,7 @@ class SelectBoard extends StatelessWidget {
                               ],
                             ),
                           ),
-                        ),
+                        ):Center(child: CircularProgressIndicator()),
                       ),
                     ),
                     Expanded(

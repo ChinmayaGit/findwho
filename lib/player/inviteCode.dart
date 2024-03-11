@@ -74,10 +74,12 @@ class InviteCode extends StatelessWidget {
                       await getZone();
 
                       if (zone != null) {
-                        Map<String, dynamic>? data = zone as Map<String, dynamic>?;
+                        Map<String, dynamic>? data =
+                            zone as Map<String, dynamic>?;
 
                         if (data != null && data.containsKey("Colors")) {
-                          Map<String, dynamic> colorsMap = data["Colors"] as Map<String, dynamic>;
+                          Map<String, dynamic> colorsMap =
+                              data["Colors"] as Map<String, dynamic>;
                           List<String> trueColors = [];
 
                           // Iterate over colorsMap and add true colors to trueColors list
@@ -93,26 +95,36 @@ class InviteCode extends StatelessWidget {
                               item.show = false;
                             }
                           });
-                              FirebaseFirestore.instance
-                                  .collection("zone")
-                                  .doc(_inviteCodeController.text)
-                                  .collection("game")
-                                  .doc(authQuerySnapshot.data()!["uid"])
-                                  .set({
-                                "player": "na",
-                                "color": "na",
-                                "dice": "na",
-                                "room": "na",
-                                "weapon": "na",
-                                "person": "na",
-                                "uid": authQuerySnapshot.data()!["uid"],
-                                "turn": 0,
-                                "ready":"Not Ready"
-                              });
+                          print("chinu");
+                          print(_inviteCodeController.text);
+                          await FirebaseFirestore.instance
+                              .collection("zone")
+                              .doc(_inviteCodeController.text)
+                              .collection("game")
+                              .doc(authQuerySnapshot.data()!["uid"])
+                              .set({
+                            "player": "na",
+                            "color": "na",
+                            "dice": "na",
+                            "room": "na",
+                            "weapon": "na",
+                            "person": "na",
+                            "uid": authQuerySnapshot.data()!["uid"],
+                            "ready": "Not Ready",
+                            "turn": "",
+                            "times":{
+                              "room": 1,
+                              "weapon": 1,
+                              "person": 1,},
+                            "solutionFound": {
+                              "room": {},
+                              "weapon": {},
+                              "person": {},
+                            },
+                          });
                           Get.to(OnlinePlayers());
                         }
-                      }
-                      else {
+                      } else {
                         GFToast.showToast(
                           "Invilid! code",
                           context,
