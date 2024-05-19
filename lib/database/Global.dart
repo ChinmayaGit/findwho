@@ -1,17 +1,19 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:findwho/database/AuthGlobal.dart';
-import 'package:findwho/player/selectBoard.dart';
-import 'package:findwho/player/waitingLobby.dart';
+import 'package:findwho/lobby/GameClose.dart';
+import 'package:findwho/lobby/SelectBoard.dart';
+import 'package:findwho/lobby/WaitingLobby.dart';
 import 'package:findwho/room/HomePage.dart';
 import 'package:flutter/material.dart';
-import '../room/ListPage.dart';
+import 'GameMap.dart';
 import 'package:get/get.dart';
 import "package:firebase_auth/firebase_auth.dart";
 
 FirebaseAuth auth = FirebaseAuth.instance;
 
 dynamic authQuerySnapshot;
+String authId="";
 dynamic zoneUserData;
 dynamic zone;
 List<List<String>> distributedNames = [];
@@ -43,30 +45,12 @@ Future<void> checkPlace() async {
   invitationCode = authQuerySnapshot.data()!["inviteId"];
 
   if (inGame == "true") {
-    await getZone();
-    noOfPlayer=zone['PlayerCount'];
-    await getZoneData();
-    await getZoneUserData();
-    await fetchDataIfGameClosed();
-    await fetchSolutionIfGameClosed();
-    //create player turn
-    // playersTurn.clear();
-    // for(int i=0;i<zoneData.length;i++) {
-    //   playersTurn.add(Player( name: zoneData[i]['player'],
-    //       turnOrder: zoneData[i]['turn']));
-    // }
-    // for (var player in playersTurn) {
-    //   print('Name: ${player.name}, FTurn Order: ${player.turnOrder}');
-    // }
-    Get.to(const Home());
+    Get.to(() =>GameCloser(text: "true",));
+
   } else if (inGame == "waiting") {
-    await getZone();
-    noOfPlayer=zone['PlayerCount'];
-    await getZoneData();
-    await getZoneUserData();
-    Get.to(const WaitingLobby());
+    Get.to(() =>GameCloser(text: "waiting",));
   } else {
-    Get.to(SelectBoard());
+    Get.to(() =>SelectBoard());
   }
 }
 
@@ -102,7 +86,7 @@ Future<void> getZoneUserData() async {
         .collection('zone')
         .doc(invitationCode)
         .collection("game")
-        .doc(authQuerySnapshot.data()!["uid"])
+        .doc(authId)
         .get();
 
     // Update zoneUserData directly with the retrieved data
@@ -128,7 +112,7 @@ Future<void> updateZoneUserData(Map<String, dynamic> newData) async {
       .collection('zone')
       .doc(invitationCode)
       .collection("game")
-      .doc(authQuerySnapshot.data()!["uid"]) // Assuming zoneUserData is a DocumentSnapshot
+      .doc(authId) // Assuming zoneUserData is a DocumentSnapshot
       .update(newData);
 }
 

@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:findwho/database/AuthGlobal.dart';
 import 'package:findwho/database/Global.dart';
-import 'package:findwho/room/ListPage.dart';
+import 'package:findwho/database/GameMap.dart';
 import 'package:flutter/material.dart';
 
 
@@ -24,7 +24,7 @@ Future getData() async {
 }
 
 sortPlayers() {
-  //TODO here we are only doing two playes compare infuture to have to do 4 player
+  //TODO here we are only doing two playes compare in future to have to do 4 player
   // authQuerySnapshot
   //     .data()!["dice"]
   //     .sort((a, b) => a['dice'].compareTo(b['dice']));

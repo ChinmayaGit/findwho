@@ -1,8 +1,8 @@
+import 'package:findwho/components/toast.dart';
 import 'package:findwho/database/Global.dart';
-import 'package:findwho/login/authpage.dart';
+import 'package:findwho/login/AuthPage.dart';
 import 'package:findwho/room/HomePage.dart';
-import 'package:findwho/room/components/toast.dart';
-import 'package:findwho/player/selectBoard.dart';
+import 'package:findwho/lobby/SelectBoard.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,6 +14,7 @@ Future<void> getUserData() async {
       .collection('users')
       .doc(auth.currentUser!.uid)
       .get();
+  authId=authQuerySnapshot.data()!["uid"];
   await checkPlace();
 }
 

@@ -1,9 +1,9 @@
+import 'package:findwho/components/toast.dart';
 import 'package:findwho/database/Global.dart';
 import 'package:findwho/database/AuthGlobal.dart';
 import 'package:findwho/database/roomGlobal.dart';
-import 'package:findwho/room/ListPage.dart';
-import 'package:findwho/player/Result.dart';
-import 'package:findwho/room/components/toast.dart';
+import 'package:findwho/database/GameMap.dart';
+import 'package:findwho/room/Result.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getwidget/getwidget.dart';
@@ -50,8 +50,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         actions: <Widget>[
           GestureDetector(
             onTap: () {
+              print(zone["solutionFound"]["room"]);
+
               // print();
-              Get.to(const Result());
+              Get.to(()=> Result());
             },
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -75,15 +77,15 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         controller: tabController,
         tabs: const [
           Tab(
-            icon: Icon(Icons.image),
+            icon: Icon(Icons.home),
             // child: Text("Tab1"),
           ),
           Tab(
-            icon: Icon(Icons.picture_as_pdf),
+            icon: Icon(Icons.security),
             // child: Text("Tab2"),
           ),
           Tab(
-            icon: Icon(Icons.directions_railway),
+            icon: Icon(Icons.person),
             // child: Text("Tab3"),
           ),
         ],
@@ -94,9 +96,31 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           TabBarView(
             controller: tabController,
             children: <Widget>[
-              GridContent(listRoom, 0),
-              GridContent(listWeapon, 1),
-              GridContent(listPerson, 2),
+              zone["solutionFound"]["room"]==""
+                  ? GridContent(listRoom, 0)
+                  : Stack(
+                alignment: Alignment.topCenter,
+                children: [
+                    Text( "${zone["solutionFound"]["room"]} found the room"),
+                gridCard(solutionRoom[0]),
+              ],),
+              zone["solutionFound"]["weapon"]==""
+                  ? GridContent(listWeapon, 1)
+                  : Stack(
+                alignment: Alignment.topCenter,
+                children: [
+                  Text( "${zone["solutionFound"]["weapon"]} found the weapon"),
+                  gridCard(solutionWeapon[0]),
+                ],),
+              zone["solutionFound"]["person"]==""
+                  ? GridContent(listPerson, 2)
+                  : Stack(
+                alignment: Alignment.topCenter,
+                children: [
+                  Text( "${zone["solutionFound"]["person"]} found the person"),
+                  gridCard(solutionPerson[0]),
+                ],),
+
               // GridContent(whatever, 3),
             ],
           ),
@@ -149,97 +173,32 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               const Spacer(),
               GestureDetector(
                 onTap: () {
-                  print(zoneData.length);
-                  print(zone['playing']);
-                  print(zoneUserData['turn']);
+                  // print(zoneData.length);
+                  // print(zone['playing']);
+                  // print(zoneUserData['turn']);
                   if (zone['playing'] == zoneUserData['turn']) {
-                    if (zoneData.length == zone['playing']) {
-                      FirebaseFirestore.instance
-                          .collection("zone")
-                          .doc(invitationCode)
-                          .update({
-                        "playing": 1,
-                      });
-                      FirebaseFirestore.instance
-                          .collection("zone")
-                          .doc(invitationCode)
-                          .collection('game')
-                          .doc(authQuerySnapshot.data()!["uid"])
-                          .update({
-                        "times": {
-                          "room": 1,
-                          "weapon": 1,
-                          "person": 1,
-                        },
-                      });
-                      getZone();
-                      getUserData();
-                      customToast(
-                          msg:
-                          'Passed to Next Player',
-                          context: context);
+                    int playing = zone['playing'];
+                    var zoneDocRef = FirebaseFirestore.instance
+                        .collection("zone")
+                        .doc(invitationCode);
+                    var gameDocRef = zoneDocRef.collection('game').doc(authId);
+                    var updateData = {
+                      "times": {"room": 1, "weapon": 1, "person": 1}
+                    };
+                    if (zoneData.length == playing) {
+                      zoneDocRef.update({"playing": 1});
                     } else {
-                      FirebaseFirestore.instance
-                          .collection("zone")
-                          .doc(invitationCode)
-                          .update({
-                        "playing": zone['playing'] + 1,
-                      });
-                      FirebaseFirestore.instance
-                          .collection("zone")
-                          .doc(invitationCode)
-                          .collection('game')
-                          .doc(authQuerySnapshot.data()!["uid"])
-                          .update({
-                        "times": {
-                          "room": 1,
-                          "weapon": 1,
-                          "person": 1,
-                        },
-                      });
-                      getZone();
-                      getUserData();
-                      customToast(
-                          msg:
-                          'Passed to Next Player',
-                          context: context);
+                      zoneDocRef.update({"playing": playing + 1});
                     }
+
+                    gameDocRef.update(updateData);
+                    getZone();
+                    // getUserData();
+                    customToast(msg: 'Passed to Next Player', context: context);
                   } else {
                     customToast(
                         msg: 'Please wait for your turn', context: context);
                   }
-
-                  // if (zone['playing']-1 == zoneUserData['turn']- 1) {
-                  //
-                  //   print(currentPlayerIndex);
-                  //   print(playersTurn[currentPlayerIndex].turnOrder);
-                  //   print(
-                  //       'Current player: ${playersTurn[currentPlayerIndex].turnOrder}');
-                  //   print(
-                  //       'Current player: ${playersTurn[currentPlayerIndex].name}');
-                  //   FirebaseFirestore.instance
-                  //       .collection("zone")
-                  //       .doc(invitationCode)
-                  //       .update({
-                  //     "playing": playersTurn[currentPlayerIndex].turnOrder,
-                  //   });
-                  //
-                  //   getZone();
-                  //   FirebaseFirestore.instance
-                  //       .collection("zone")
-                  //       .doc(invitationCode).collection('game').doc(authQuerySnapshot.data()!["uid"])
-                  //       .update({
-                  //     "times":{
-                  //       "room": 1,
-                  //       "weapon": 1,
-                  //       "person": 1,},
-                  //   });
-                  // } else {
-                  //   customToast(
-                  //       msg:
-                  //       'Please wait for your turn',
-                  //       context: context);
-                  // }
                 },
                 child: Container(
                   decoration: const ShapeDecoration(
@@ -308,41 +267,44 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
 class GridContent extends StatefulWidget {
   final List<AssetInfo> objects;
-  final int index;
+  final int pageIndex;
 
-  const GridContent(this.objects, this.index, {Key? key}) : super(key: key);
+  const GridContent(this.objects, this.pageIndex, {Key? key}) : super(key: key);
 
   @override
   State<GridContent> createState() => _GridContentState();
 }
 
+// int index = 0;
+
 class _GridContentState extends State<GridContent> {
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: 2,
-      crossAxisSpacing: 10,
-      mainAxisSpacing: 10,
-      children: widget.objects.map((assetInfo) {
-        if (assetInfo.state == false) {
+    return GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+        ),
+        itemCount: widget.objects.length,
+        itemBuilder: (context, index) {
+          AssetInfo assetInfo = widget.objects[index];
           return GestureDetector(
             onTap: () async {
-              print(zone['playing']);
-              print(zoneUserData['turn']);
+              print(index);
               await getZone();
+              await getZoneUserData();
               if (zone['playing'] == zoneUserData['turn']) {
                 await getZoneUserData();
-                if (zoneUserData['times']['room'] == 1 && widget.index == 0) {
-                  await updateZoneUserData({'times.room': 0});
-                  checkTurn(assetInfo);
+                if (zoneUserData['times']['room'] == 1 &&
+                    widget.pageIndex == 0) {
+                  checkTurn(assetInfo, "room", index);
                 } else if (zoneUserData['times']['weapon'] == 1 &&
-                    widget.index == 1) {
-                  checkTurn(assetInfo);
-                  await updateZoneUserData({'times.weapon': 0});
+                    widget.pageIndex == 1) {
+                  checkTurn(assetInfo, "weapon", index);
                 } else if (zoneUserData['times']['person'] == 1 &&
-                    widget.index == 2) {
-                  checkTurn(assetInfo);
-                  await updateZoneUserData({'times.person': 0});
+                    widget.pageIndex == 2) {
+                  checkTurn(assetInfo, "person", index);
                 } else {
                   customToast(
                       msg:
@@ -351,76 +313,70 @@ class _GridContentState extends State<GridContent> {
                 }
               } else {
                 customToast(
-                    msg:
-                        'Current player: ${zone['playing']}',
+                    msg: 'Current player: Player ${zone['playing']}',
                     context: context);
               }
             },
-            child: Card(
-              color: Colors.transparent,
-              elevation: 0,
-              child: Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      image: DecorationImage(
-                        image: AssetImage(assetInfo.img),
-                        fit: BoxFit.scaleDown,
-                        colorFilter: assetInfo.state == true
-                            ? const ColorFilter.mode(
-                                Colors.grey,
-                                BlendMode.saturation,
-                              )
-                            : null,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    left: 10,
-                    bottom: 10,
-                    child: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.white,
-                      ),
-                      child: const Icon(
-                        Icons.bookmark_border,
-                        size: 15,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    right: 10,
-                    top: 10,
-                    child: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.blue,
-                      ),
-                      child: Text(
-                        assetInfo.name,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            onDoubleTap: () async {
+              // print(zone['playing']);
+              // print(zoneUserData['turn']);
+              await getZone();
+              await getZoneUserData();
+              if (zone['playing'] == zoneUserData['turn']) {
+                if (zoneUserData['times']['room'] == 1 &&
+                    widget.pageIndex == 0) {
+                  checkTurn(assetInfo, "room", widget.pageIndex);
+                } else if (zoneUserData['times']['weapon'] == 1 &&
+                    widget.pageIndex == 1) {
+                  checkTurn(assetInfo, "weapon", widget.pageIndex);
+                } else if (zoneUserData['times']['person'] == 1 &&
+                    widget.pageIndex == 2) {
+                  checkTurn(assetInfo, "person", widget.pageIndex);
+                } else {
+                  customToast(
+                      msg:
+                          'Go to next or pass to next person your turn is over',
+                      context: context);
+                }
+              } else {
+                customToast(
+                    msg: 'Current player: Player ${zone['playing']}',
+                    context: context);
+              }
+            },
+            child: gridCard(assetInfo)
           );
-        } else {
-          return Container();
-        }
-      }).toList(),
-    );
+        });
   }
 
-  checkTurn(assetInfo) {
+
+  updateState({required String name, required int index}) async {
+    final documentReference = FirebaseFirestore.instance
+        .collection('zone')
+        .doc(invitationCode)
+        .collection("data")
+        .doc("combinedData");
+
+// Retrieve the document snapshot
+    final documentSnapshot = await documentReference.get();
+
+    if (documentSnapshot.exists) {
+      // Retrieve the data from the document
+      final data = documentSnapshot.data() as Map<String, dynamic>;
+      final persons = List<Map<String, dynamic>>.from(data[name] ?? []);
+
+      // Update the state of the specific element
+      if (index >= 0 && index < persons.length) {
+        persons[index]['state'] = true;
+      }
+      print(persons[index]['state']);
+      print(index);
+      // Update the 'persons' array in the document
+      await documentReference.update({name: persons});
+    }
+  }
+
+  checkTurn(assetInfo, name, index) {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -455,87 +411,73 @@ class _GridContentState extends State<GridContent> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () async {
-                      print(solutionRoom[0].name);
-                      getZoneUserData();
-                      Map<String, dynamic> existingSolutionFound = (zoneUserData
-                              as Map<String, dynamic>?)?["solutionFound"] ??
-                          {};
-
+//updateing
+                      await updateZoneUserData({
+                        'times.$name': 0,
+                      });
                       setState(() {
-                        if (widget.index == 0) {
+                        if (widget.pageIndex == 0) {
                           if (assetInfo.name == solutionRoom[0].name) {
-                            existingSolutionFound["room"] = {
-                              "img": solutionRoom[0].img,
-                              "name": solutionRoom[0].name,
-                              "state": solutionRoom[0].state
-                            };
                             FirebaseFirestore.instance
                                 .collection('zone')
                                 .doc(invitationCode)
-                                .collection("game")
-                                .doc(authQuerySnapshot.data()!["uid"])
-                                .update(
-                                    {"solutionFound": existingSolutionFound});
+                                .set({
+                              "solutionFound": {
+                                "room": zoneUserData['player']
+                              }
+                            }, SetOptions(merge: true));
                             customToast(
                                 msg:
                                     'You found it someOne was killed on ${assetInfo.name}',
                                 context: context);
                           } else {
-                            FirebaseFirestore.instance
-                                .collection('zone')
-                                .doc(invitationCode)
-                                .collection("game")
-                                .doc(authQuerySnapshot.data()!["uid"])
-                                .update(
-                                    {"solutionFound": existingSolutionFound});
+                            updateState(name: 'rooms', index: index);
                             customToast(
                                 msg: 'Wrong Room Try next time',
                                 context: context);
                             assetInfo.state = true;
                           }
-                        } else if (widget.index == 1) {
+                        } else if (widget.pageIndex == 1) {
+                          print(assetInfo.name);
+                          print(solutionWeapon[0].name);
+                          print("Chinu");
                           if (assetInfo.name == solutionWeapon[0].name) {
-                            existingSolutionFound["weapon"] = {
-                              "img": solutionWeapon[0].img,
-                              "name": solutionWeapon[0].name,
-                              "state": solutionWeapon[0].state
-                            };
                             FirebaseFirestore.instance
                                 .collection('zone')
                                 .doc(invitationCode)
-                                .collection("game")
-                                .doc(authQuerySnapshot.data()!["uid"])
-                                .update(
-                                    {"solutionFound": existingSolutionFound});
+                                .set({
+                              "solutionFound": {
+                                "weapon": zoneUserData['player']
+                              }
+                            }, SetOptions(merge: true));
                             customToast(
                                 msg:
                                     'You found it someOne was killed by ${assetInfo.name}',
                                 context: context);
                           } else {
+                            updateState(name: 'weapons', index: index);
                             customToast(
                                 msg: 'Wrong Weapon Try next time',
                                 context: context);
                             assetInfo.state = true;
                           }
-                        } else if (widget.index == 2) {
+                        } else if (widget.pageIndex == 2) {
                           if (assetInfo.name == solutionPerson[0].name) {
-                            existingSolutionFound["person"] = {
-                              "img": solutionPerson[0].img,
-                              "name": solutionPerson[0].name,
-                              "state": solutionPerson[0].state
-                            };
                             FirebaseFirestore.instance
                                 .collection('zone')
                                 .doc(invitationCode)
-                                .collection("game")
-                                .doc(authQuerySnapshot.data()!["uid"])
-                                .update(
-                                    {"solutionFound": existingSolutionFound});
+                                .set({
+                              "solutionFound": {
+                                "person": zoneUserData['player']
+                              }
+                            }, SetOptions(merge: true));
                             customToast(
                                 msg:
                                     'You found it someOne was killed by ${assetInfo.name}',
                                 context: context);
                           } else {
+                            // Retrieve the document reference
+                            updateState(name: 'persons', index: index);
                             customToast(
                                 msg: 'Wrong Person Try next time',
                                 context: context);
@@ -597,4 +539,64 @@ class _GridContentState extends State<GridContent> {
       },
     );
   }
+
+}
+
+gridCard(assetInfo){
+  return Card(
+    color: Colors.transparent,
+    elevation: 0,
+    child: Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            image: DecorationImage(
+              image: AssetImage(assetInfo.img),
+              fit: BoxFit.scaleDown,
+              colorFilter: assetInfo.state == true
+                  ? const ColorFilter.mode(
+                Colors.grey,
+                BlendMode.saturation,
+              )
+                  : null,
+            ),
+          ),
+        ),
+        Positioned(
+          left: 10,
+          bottom: 10,
+          child: Container(
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.white,
+            ),
+            child: const Icon(
+              Icons.bookmark_border,
+              size: 15,
+            ),
+          ),
+        ),
+        Positioned(
+          right: 10,
+          top: 10,
+          child: Container(
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.blue,
+            ),
+            child: Text(
+              assetInfo.name,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }

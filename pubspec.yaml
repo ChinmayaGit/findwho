@@ -52,6 +52,7 @@ dev_dependencies:
   getwidget: ^4.0.0
   bottom_sheet: ^4.0.0
   skeletonizer: ^1.1.0
+  introduction_screen: ^3.1.14
 
   #Firebase
   firebase_core: ^2.22.0
