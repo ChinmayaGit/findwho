@@ -1,6 +1,6 @@
-import 'package:findwho/database/Global.dart';
-import 'package:findwho/database/GameMap.dart';
-import 'package:findwho/lobby/GameClose.dart';
+import 'package:findwho/database/FetchZone.dart';
+import 'package:findwho/database/FetchData.dart';
+import 'package:findwho/room/GameClose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -16,12 +16,13 @@ class Result extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Founded"),
+        centerTitle: true,
       ),
       floatingActionButton: new FloatingActionButton(
         onPressed: () {
           Get.to(GameCloser(text: "true"));
         },
-        child: const Text("Quit"),
+        child: const Text("Exit"),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: Row(

@@ -1,18 +1,19 @@
-import 'package:findwho/database/AuthGlobal.dart';
-import 'package:findwho/database/roomGlobal.dart';
+import 'package:findwho/components/LobbyComponents.dart';
+import 'package:findwho/database/FetchAuth.dart';
+import 'package:findwho/database/Offline.dart';
 import 'package:findwho/lobby/InviteCode.dart';
 import 'package:findwho/lobby/SelectColorAndDice.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../database/Global.dart';
+import '../database/FetchZone.dart';
 import 'WaitingLobby.dart';
 
 class SelectBoard extends StatelessWidget {
   SelectBoard({super.key});
 
   final CountController controller = Get.put(CountController());
-
+  RxBool createWait=false.obs;
   customCard({required String text, required String img, context}) {
     return Expanded(
       child: Padding(
@@ -88,62 +89,55 @@ class SelectBoard extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child:createWait.value==false? GestureDetector(
-                          onTap: () {
+                          onTap: () async{
                             createWait.value = true;
                             noOfPlayer = controller.count.value;
-                            getData().then((value) async {
-                              invitationCode = generateInvitationCode();
-                              await FirebaseFirestore.instance
-                                  .collection("zone")
-                                  .doc(invitationCode)
-                                  .set({
-                                "PlayerCount": noOfPlayer,
-                                "InvitationCode": invitationCode,
-                                "Date": DateTime.now(),
-                                "RoomCreated": false,
-                                "playing":1,
-                                "solutionFound": {
-                                  "room": "",
-                                  "weapon": "",
-                                  "person": "",
-                                },
-                                "Colors": {
-                                  "Red": false,
-                                  "Green": false,
-                                  "Blue": false,
-                                  "Yellow": false,
-                                  "Orange": false,
-                                  "Purple": false,
-                                },
-                              });
-                              await FirebaseFirestore.instance
-                                  .collection("zone")
-                                  .doc(invitationCode)
-                                  .collection("game")
-                                  .doc(authId)
-                                  .set({
-                                "player": "na",
-                                "color": "na",
-                                "dice": "na",
-                                "room": "na",
-                                "weapon": "na",
-                                "person": "na",
-                                "uid": authId,
-                                "ready": "Not Ready",
-                                "turn": "",
-                                "times": {
-                                  "room": 1,
-                                  "weapon": 1,
-                                  "person": 1,
-                                },
-                                // "solutionFound": {
-                                //   "room": {},
-                                //   "weapon": {},
-                                //   "person": {},
-                                // },
-                              });
-                              Get.to(SelectColorAndDice());
+                            invitationCode = generateInvitationCode();
+                            await FirebaseFirestore.instance
+                                .collection("zone")
+                                .doc(invitationCode)
+                                .set({
+                              "PlayerCount": noOfPlayer,
+                              "InvitationCode": invitationCode,
+                              "Date": DateTime.now(),
+                              "RoomCreated": false,
+                              "playing":1,
+                              "solutionFound": {
+                                "room": "",
+                                "weapon": "",
+                                "person": "",
+                              },
+                              "Colors": {
+                                "Red": false,
+                                "Green": false,
+                                "Blue": false,
+                                "Yellow": false,
+                                "Orange": false,
+                                "Purple": false,
+                              },
                             });
+                            await FirebaseFirestore.instance
+                                .collection("zone")
+                                .doc(invitationCode)
+                                .collection("game")
+                                .doc(authId)
+                                .set({
+                              "player": "na",
+                              "color": "na",
+                              "dice": "na",
+                              "room": "na",
+                              "weapon": "na",
+                              "person": "na",
+                              "uid": authId,
+                              "ready": "Not Ready",
+                              "turn": "",
+                              "times": {
+                                "room": 1,
+                                "weapon": 1,
+                                "person": 1,
+                              },
+                            });
+                            Get.to(SelectColorAndDice());
                           },
                           child: Container(
                             height: 50,
@@ -171,9 +165,10 @@ class SelectBoard extends StatelessWidget {
                         child: GestureDetector(
                           onTap: () {
                             noOfPlayer = controller.count.value;
-                            getData().then((value) {
-                              Get.to(InviteCode());
-                            });
+                            Get.to(InviteCode());
+                            // getData().then((value) {
+                            //   Get.to(InviteCode());
+                            // });
                           },
                           child: Container(
                             height: 50,

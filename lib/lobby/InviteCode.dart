@@ -1,5 +1,7 @@
-import 'package:findwho/database/Global.dart';
-import 'package:findwho/database/AuthGlobal.dart';
+import 'package:findwho/components/Colors.dart';
+import 'package:findwho/components/LobbyComponents.dart';
+import 'package:findwho/database/FetchZone.dart';
+import 'package:findwho/database/FetchAuth.dart';
 import 'package:findwho/lobby/SelectColorAndDice.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

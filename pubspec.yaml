@@ -47,17 +47,21 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
   get: ^4.6.6
-  dice_icons: ^0.1.5
+
   #Components
   getwidget: ^4.0.0
-  bottom_sheet: ^4.0.0
-  skeletonizer: ^1.1.0
+  bottom_sheet: ^4.0.4
+  dice_icons: ^0.1.7
+  #pending implementation
+  skeletonizer: ^1.1.2+1
   introduction_screen: ^3.1.14
 
   #Firebase
-  firebase_core: ^2.22.0
-  cloud_firestore: ^4.13.1
-  firebase_auth: ^4.16.0
+  firebase_core: ^2.31.0
+  cloud_firestore: ^4.17.3
+  firebase_auth: ^4.19.5
+
+  card_swiper: ^3.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -76,6 +80,7 @@ flutter:
     - assets/room/
     - assets/person/
     - assets/weapon/
+    - assets/background/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -1,10 +1,13 @@
+import 'package:findwho/components/Colors.dart';
+import 'package:findwho/components/LobbyComponents.dart';
 import 'package:findwho/components/toast.dart';
-import 'package:findwho/database/GameMap.dart';
+import 'package:findwho/database/FetchAuth.dart';
+import 'package:findwho/database/FetchData.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:findwho/database/Global.dart';
+import 'package:findwho/database/FetchZone.dart';
 import 'package:findwho/room/HomePage.dart';
 
 class WaitingLobby extends StatefulWidget {

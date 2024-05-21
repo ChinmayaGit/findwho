@@ -1,4 +1,4 @@
-import 'package:findwho/database/AuthGlobal.dart';
+import 'package:findwho/database/FetchAuth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';

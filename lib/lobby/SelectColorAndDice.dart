@@ -1,13 +1,15 @@
 import 'dart:math';
+import 'package:findwho/components/Colors.dart';
+import 'package:findwho/components/LobbyComponents.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:dice_icons/dice_icons.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:findwho/database/AuthGlobal.dart';
+import 'package:findwho/database/FetchAuth.dart';
 import 'package:findwho/lobby/WaitingLobby.dart';
-import 'package:findwho/database/Global.dart';
+import 'package:findwho/database/FetchZone.dart';
 
 class SelectColorAndDice extends StatefulWidget {
   const SelectColorAndDice({super.key});

@@ -1,5 +1,5 @@
 import 'package:findwho/components/toast.dart';
-import 'package:findwho/database/AuthGlobal.dart';
+import 'package:findwho/database/FetchAuth.dart';
 import 'package:findwho/login/AuthPage.dart';
 import 'package:findwho/lobby/SelectBoard.dart';
 import 'package:flutter/gestures.dart';
