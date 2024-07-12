@@ -1,7 +1,10 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:findwho/components/LobbyComponents.dart';
-import 'package:findwho/database/FetchZone.dart';
+import 'package:findwho/Pages/Lobby/components/controller/zone_controller.dart';
+import 'package:findwho/Pages/Lobby/components/lobby_components.dart';
+import 'package:findwho/Pages/Lobby/components/controller/zone_game_contoller.dart';
+import 'package:findwho/database/fetch_zone.dart';
+import 'package:get/get.dart';
 
 List<AssetInfo> listRoom = [];
 List<AssetInfo> listWeapon = [];
@@ -18,6 +21,9 @@ List<AssetInfo> playersPerson = [];
 List<AssetInfo> solutionRoom = [];
 List<AssetInfo> solutionWeapon = [];
 List<AssetInfo> solutionPerson = [];
+
+final ZoneController _zoneController = Get.put(ZoneController());
+final ZoneGameController _zoneGameController = Get.put(ZoneGameController());
 
 class AssetInfo {
   final String img;
@@ -55,11 +61,12 @@ Future<void> createItemsData() async {
   tempListPerson.addAll((data['persons'] as List<dynamic>).map(
       (person) => AssetInfo(person['img'], person['name'], person['state'])));
 
+print("chinu");
   await createSolution();
   await makeEqual();
-  await distributeInPlayer("room", tempListRoom, noOfPlayer);
-  await distributeInPlayer("weapon", tempListWeapon, noOfPlayer);
-  await distributeInPlayer("person", tempListPerson, noOfPlayer);
+  await distributeInPlayer("rooms", tempListRoom, _zoneController.zoneDoc.value!.maxPlayers);
+  await distributeInPlayer("weapons", tempListWeapon, _zoneController.zoneDoc.value!.maxPlayers);
+  await distributeInPlayer("persons", tempListPerson, _zoneController.zoneDoc.value!.maxPlayers);
 }
 
 // End
@@ -105,7 +112,7 @@ Future<void> fetchDataIfGameClosed() async {
 
 createSolution() async {
   // Randomly select one item from listRoom
-
+  print("chinu2");
   if (tempListRoom.isNotEmpty) {
     int randomIndex = Random().nextInt(tempListRoom.length);
     // Add and remove value from index
@@ -120,41 +127,41 @@ createSolution() async {
   if (tempListWeapon.isNotEmpty) {
     int randomIndex = Random().nextInt(tempListWeapon.length);
     // Add and remove value from index
-    AssetInfo room = tempListWeapon.removeAt(randomIndex);
+    AssetInfo weapon = tempListWeapon.removeAt(randomIndex);
     // AssetInfo room = listWeapon[randomIndex];
     // Add the selected item to the solutionRoom list
     solutionWeapon.clear(); // Clear the list before adding the new item
-    solutionWeapon.add(room);
+    solutionWeapon.add(weapon);
   }
 
   // Randomly select one item from listPerson
   if (tempListPerson.isNotEmpty) {
     int randomIndex = Random().nextInt(tempListPerson.length);
     // Add and remove value from index
-    AssetInfo room = tempListPerson.removeAt(randomIndex);
+    AssetInfo person = tempListPerson.removeAt(randomIndex);
     // AssetInfo room = listPerson[randomIndex];
     // Add the selected item to the solutionRoom list
     solutionPerson.clear(); // Clear the list before adding the new item
-    solutionPerson.add(room);
+    solutionPerson.add(person);
   }
-
+  print("chinu3");
   FirebaseFirestore.instance
       .collection("zone")
       .doc(invitationCode)
       .collection('solution')
       .doc("combinedSolution").set(
     {
-      "room": {
+      "rooms": {
         "img": solutionRoom[0].img,
         "name": solutionRoom[0].name,
         "state": solutionRoom[0].state,
       },
-      "weapon": {
+      "weapons": {
         "img": solutionWeapon[0].img,
         "name": solutionWeapon[0].name,
         "state": solutionWeapon[0].state,
       },
-      "person": {
+      "persons": {
         "img": solutionPerson[0].img,
         "name": solutionPerson[0].name,
         "state": solutionPerson[0].state,
@@ -176,9 +183,9 @@ fetchSolutionIfGameClosed() async{
 
     if (comboSolutionSnapshot.exists) {
       Map<String, dynamic> comboSolutionData = comboSolutionSnapshot.data()!;
-      Map<String, dynamic> roomData = comboSolutionData['room'];
-      Map<String, dynamic> weaponData = comboSolutionData['weapon'];
-      Map<String, dynamic> personData = comboSolutionData['person'];
+      Map<String, dynamic> roomData = comboSolutionData['rooms'];
+      Map<String, dynamic> weaponData = comboSolutionData['weapons'];
+      Map<String, dynamic> personData = comboSolutionData['persons'];
 
       solutionRoom.add(AssetInfo(roomData['img'], roomData['name'], roomData['state']));
       solutionWeapon.add(AssetInfo(weaponData['img'], weaponData['name'], weaponData['state']));
@@ -193,14 +200,14 @@ fetchSolutionIfGameClosed() async{
 
 makeEqual() async {
   // Calculate size of each sublist
-  int roomSize = (tempListRoom.length / noOfPlayer).floor();
-  int weaponSize = (tempListWeapon.length / noOfPlayer).floor();
-  int personSize = (tempListPerson.length / noOfPlayer).floor();
+  int roomSize = (tempListRoom.length / _zoneController.zoneDoc.value!.maxPlayers).floor();
+  int weaponSize = (tempListWeapon.length / _zoneController.zoneDoc.value!.maxPlayers).floor();
+  int personSize = (tempListPerson.length / _zoneController.zoneDoc.value!.maxPlayers).floor();
 
   // Adjust sublist size to ensure even distribution of remainders
-  int roomRemainder = tempListRoom.length % noOfPlayer;
-  int weaponRemainder = tempListWeapon.length % noOfPlayer;
-  int personRemainder = tempListPerson.length % noOfPlayer;
+  int roomRemainder = tempListRoom.length % _zoneController.zoneDoc.value!.maxPlayers;
+  int weaponRemainder = tempListWeapon.length % _zoneController.zoneDoc.value!.maxPlayers;
+  int personRemainder = tempListPerson.length % _zoneController.zoneDoc.value!.maxPlayers;
 
   // Clear existing data in final lists
   listRoom.clear();
@@ -307,7 +314,7 @@ distributeInPlayer(
 
   // Distribute assets to players
   for (int i = 0; i < numberOfHalves; i++) {
-    String uid = zoneData[i]['uid']; // Get UID from zoneData
+    String uid = _zoneGameController.zoneGameCollection[i].uid;
 
     List<Map<String, dynamic>> sublist = assets
         .sublist(i * sublistSize, (i + 1) * sublistSize)
@@ -333,12 +340,12 @@ storePlayerData(Map<String, List<Map<String, dynamic>>> players, String id) {
     Map<String, dynamic> updateData = {};
 
     // Conditionally populate the updateData map based on the id
-    if (id == 'room') {
-      updateData['room'] = value;
-    } else if (id == 'weapon') {
-      updateData['weapon'] = value;
-    } else if (id == 'person') {
-      updateData['person'] = value;
+    if (id == 'rooms') {
+      updateData['rooms'] = value;
+    } else if (id == 'weapons') {
+      updateData['weapons'] = value;
+    } else if (id == 'persons') {
+      updateData['persons'] = value;
     }
 
     // Update Firestore document with player data

@@ -1,19 +1,22 @@
-import 'package:findwho/components/LobbyComponents.dart';
-import 'package:findwho/database/FetchAuth.dart';
-import 'package:findwho/database/Offline.dart';
-import 'package:findwho/lobby/InviteCode.dart';
-import 'package:findwho/lobby/SelectColorAndDice.dart';
+import 'package:findwho/Pages/Auth/components/user_data_controller.dart';
+import 'package:findwho/Pages/Lobby/invite_code.dart';
+import 'package:findwho/Pages/Lobby/color_dice_picker.dart';
+import 'package:findwho/Pages/Lobby/components/lobby_components.dart';
+import 'package:findwho/Pages/Auth/auth_check.dart';
+import 'package:findwho/Pages/Lobby/components/controller/zone_game_contoller.dart';
+import 'package:findwho/database/fetch_zone.dart';
+import 'package:findwho/database/offline.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../database/FetchZone.dart';
-import 'WaitingLobby.dart';
+import 'waiting_lobby.dart';
 
 class SelectBoard extends StatelessWidget {
-  SelectBoard({super.key});
-
-  final CountController controller = Get.put(CountController());
-  RxBool createWait=false.obs;
+   SelectBoard({super.key});
+ int noOfPlayer=0;
+   final RxBool createWait=false.obs;
+   final CountController countController = Get.put(CountController());
+   // final UserController _userController = Get.put(UserController());
   customCard({required String text, required String img, context}) {
     return Expanded(
       child: Padding(
@@ -55,8 +58,8 @@ class SelectBoard extends StatelessWidget {
                           children: [
                             GestureDetector(
                               onTap: () {
-                                controller.count.value >= 3
-                                    ? controller.decrement()
+                                countController.count.value >= 3
+                                    ? countController.decrement()
                                     : 0;
                               },
                               child: CircleAvatar(child: Icon(Icons.remove)),
@@ -64,7 +67,7 @@ class SelectBoard extends StatelessWidget {
                             Spacer(),
                             Obx(() => Container(
                                   child: Text(
-                                    controller.count.toString(),
+                                    countController.count.toString(),
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 20.0,
@@ -75,8 +78,8 @@ class SelectBoard extends StatelessWidget {
                             Spacer(),
                             GestureDetector(
                               onTap: () {
-                                controller.count.value <= 3
-                                    ? controller.increment()
+                                countController.count.value <= 3
+                                    ? countController.increment()
                                     : 0;
                               },
                               child: CircleAvatar(child: Icon(Icons.add)),
@@ -91,53 +94,10 @@ class SelectBoard extends StatelessWidget {
                         child:createWait.value==false? GestureDetector(
                           onTap: () async{
                             createWait.value = true;
-                            noOfPlayer = controller.count.value;
+                            noOfPlayer = countController.count.value;
                             invitationCode = generateInvitationCode();
-                            await FirebaseFirestore.instance
-                                .collection("zone")
-                                .doc(invitationCode)
-                                .set({
-                              "PlayerCount": noOfPlayer,
-                              "InvitationCode": invitationCode,
-                              "Date": DateTime.now(),
-                              "RoomCreated": false,
-                              "playing":1,
-                              "solutionFound": {
-                                "room": "",
-                                "weapon": "",
-                                "person": "",
-                              },
-                              "Colors": {
-                                "Red": false,
-                                "Green": false,
-                                "Blue": false,
-                                "Yellow": false,
-                                "Orange": false,
-                                "Purple": false,
-                              },
-                            });
-                            await FirebaseFirestore.instance
-                                .collection("zone")
-                                .doc(invitationCode)
-                                .collection("game")
-                                .doc(authId)
-                                .set({
-                              "player": "na",
-                              "color": "na",
-                              "dice": "na",
-                              "room": "na",
-                              "weapon": "na",
-                              "person": "na",
-                              "uid": authId,
-                              "ready": "Not Ready",
-                              "turn": "",
-                              "times": {
-                                "room": 1,
-                                "weapon": 1,
-                                "person": 1,
-                              },
-                            });
-                            Get.to(SelectColorAndDice());
+                            print(noOfPlayer);
+                            Get.to(() => ColorDicePicker(maxPlayer:noOfPlayer));
                           },
                           child: Container(
                             height: 50,
@@ -164,7 +124,7 @@ class SelectBoard extends StatelessWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: GestureDetector(
                           onTap: () {
-                            noOfPlayer = controller.count.value;
+                            noOfPlayer = countController.count.value;
                             Get.to(InviteCode());
                             // getData().then((value) {
                             //   Get.to(InviteCode());

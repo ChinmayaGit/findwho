@@ -31,9 +31,9 @@
 //     Map<String, dynamic>? data = snapshot.data();
 //
 //     if (data != null) {
-//       solution['room'] = data['room'] ?? "";
-//       solution['weapon'] = data['weapon'] ?? "";
-//       solution['person'] = data['person'] ?? "";
+//       solution['rooms'] = data['rooms'] ?? "";
+//       solution['weapons'] = data['weapons'] ?? "";
+//       solution['persons'] = data['persons'] ?? "";
 //     }
 //
 //     print(solution);
@@ -43,9 +43,9 @@
 //   }
 // }
 // Map<String, String> solution = {
-//   "room": "",
-//   "weapon": "",
-//   "person": "",
+//   "rooms": "",
+//   "weapons": "",
+//   "persons": "",
 // };
 // void getAndDistributeOffline(List<AssetInfo> list1, List<AssetInfo> list2,
 //     List<AssetInfo> list3, int groups) {
@@ -80,9 +80,9 @@
 //     final personIndex = random.nextInt(selectedPersonNames.length);
 //
 //     selectedSolutions.add({
-//       "room": selectedRoomNames[roomIndex],
-//       "weapon": selectedWeaponNames[weaponIndex],
-//       "person": selectedPersonNames[personIndex],
+//       "rooms": selectedRoomNames[roomIndex],
+//       "weapons": selectedWeaponNames[weaponIndex],
+//       "persons": selectedPersonNames[personIndex],
 //     });
 //
 //     selectedRoomNames.removeAt(roomIndex);
@@ -93,9 +93,9 @@
 // // Assuming selectedSolutions is a List<Map<String, String>>
 //   if (selectedSolutions.isNotEmpty) {
 //     FirebaseFirestore.instance.collection("zone").doc("Solution").set({
-//       "room": selectedSolutions[0]['room'],
-//       "weapon": selectedSolutions[0]['weapon'],
-//       "person": selectedSolutions[0]['person'],
+//       "rooms": selectedSolutions[0]['rooms'],
+//       "weapons": selectedSolutions[0]['weapons'],
+//       "persons": selectedSolutions[0]['persons'],
 //     });
 //   }
 //
@@ -109,42 +109,42 @@
 //   selectedPersonNames.shuffle();
 //
 //   Map<String, List<String>> Player1 = {
-//     "room": [],
-//     "weapon": [],
-//     "person": [],
+//     "rooms": [],
+//     "weapons": [],
+//     "persons": [],
 //   };
 //
 //   Map<String, List<String>> Player2 = {
-//     "room": [],
-//     "weapon": [],
-//     "person": [],
+//     "rooms": [],
+//     "weapons": [],
+//     "persons": [],
 //   };
 //
 //   for (int i = 0; i < selectedRoomNames.length ~/ 2; i++) {
-//     Player1["room"]?.add(selectedRoomNames[i]);
-//     Player2["room"]?.add(selectedRoomNames[i + selectedRoomNames.length ~/ 2]);
+//     Player1["rooms"]?.add(selectedRoomNames[i]);
+//     Player2["rooms"]?.add(selectedRoomNames[i + selectedRoomNames.length ~/ 2]);
 //   }
 //
 //   for (int i = 0; i < selectedWeaponNames.length ~/ 2; i++) {
-//     Player1["weapon"]?.add(selectedWeaponNames[i]);
-//     Player2["weapon"]
+//     Player1["weapons"]?.add(selectedWeaponNames[i]);
+//     Player2["weapons"]
 //         ?.add(selectedWeaponNames[i + selectedWeaponNames.length ~/ 2]);
 //   }
 //
 //   for (int i = 0; i < selectedPersonNames.length ~/ 2; i++) {
-//     Player1["person"]?.add(selectedPersonNames[i]);
-//     Player2["person"]
+//     Player1["persons"]?.add(selectedPersonNames[i]);
+//     Player2["persons"]
 //         ?.add(selectedPersonNames[i + selectedPersonNames.length ~/ 2]);
 //   }
 //   FirebaseFirestore.instance.collection("zone").doc("Player1").set({
-//     "room": Player1["room"],
-//     "weapon": Player1["weapon"],
-//     "person": Player1["person"],
+//     "rooms": Player1["rooms"],
+//     "weapons": Player1["weapons"],
+//     "persons": Player1["persons"],
 //   });
 //   FirebaseFirestore.instance.collection("zone").doc("Player2").set({
-//     "room": Player2["room"],
-//     "weapon": Player2["weapon"],
-//     "person": Player2["person"],
+//     "rooms": Player2["rooms"],
+//     "weapons": Player2["weapons"],
+//     "persons": Player2["persons"],
 //   });
 //
 //   fetchSolution();
