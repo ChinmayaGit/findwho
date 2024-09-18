@@ -11,4 +11,4 @@ Game of mystery and fun.
 
 |7th Page|8th Page|9th Page|
 |:-------------------------:|:-------------------------:|:-------------------------:|
-|<img src="https://raw.githubusercontent.com/ChinmayaGit/findwho/main/pics/pic%20(6).jpg" width=100% height=100%> |<img src="https://raw.githubusercontent.com/ChinmayaGit/findwho/main/pics/pic%20(7).jpg" width=100% height=100%>||<img src="https://raw.githubusercontent.com/ChinmayaGit/findwho/main/pics/pic%20(8).jpg" width=100% height=100%> |
+|<img src="https://raw.githubusercontent.com/ChinmayaGit/findwho/main/pics/pic%20(6).jpg" width=100% height=100%> |<img src="https://raw.githubusercontent.com/ChinmayaGit/findwho/main/pics/pic%20(7).jpg" width=100% height=100%>|<img src="https://raw.githubusercontent.com/ChinmayaGit/findwho/main/pics/pic%20(8).jpg" width=100% height=100%> |
