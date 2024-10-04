@@ -1,5 +1,5 @@
 import 'package:findwho/Pages/Lobby/color_dice_picker.dart';
-import 'package:findwho/Pages/Lobby/components/controller/zone_game_contoller.dart';
+import 'package:findwho/components/controller/zone_game_contoller.dart';
 import 'package:findwho/components/colors.dart';
 import 'package:findwho/Pages/Lobby/components/lobby_components.dart';
 import 'package:findwho/components/toast.dart';
@@ -20,6 +20,7 @@ class InviteCode extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(centerTitle: true,title: Text("Invite Code"),),
+
       body: Center(
         child: Container(
           decoration: ShapeDecoration(
@@ -74,13 +75,32 @@ class InviteCode extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () async {
                     String inviteCode = _inviteCodeController.text.trim();
-                    invitationCode=inviteCode;
                     if (inviteCode.isEmpty) {
                       // Handle empty invite code scenario
                       customToast(msg: "Invalid code", context: context);
                       return;
                     }
-                    Get.to(const ColorDicePicker(maxPlayer: 0,));
+
+                    QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('zone').get();
+                    bool codeFound = false;
+
+                    for (var doc in querySnapshot.docs) {
+                      if (doc.id == inviteCode) {
+                        codeFound = true;
+                        break;
+                      }
+                    }
+
+                    if (codeFound) {
+                      invitationCode = inviteCode;
+                      Get.to(const ColorDicePicker(maxPlayer: 0,));
+                    } else {
+                      customToast(msg: "Invalid code", context: context);
+                    }
+
+
+
+
 
                   },
                   child: Container(

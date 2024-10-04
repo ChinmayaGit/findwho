@@ -30,7 +30,7 @@ class UserController extends GetxController {
   }
 
   Future<void> fetchUserDocument() async {
-    print("CChinu");
+
     isLoadingUserConroller.value = true; // Set loading to true before fetching
     try {
       var snapshot = await userDocument.get();

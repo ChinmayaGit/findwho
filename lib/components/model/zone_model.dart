@@ -7,6 +7,7 @@ class ZoneModel {
   final String invitationCode;
   final int maxPlayers;
   final bool roomCreated;
+  final int page;
   final int turn;
   final Map<String, dynamic>? solutionFound;
 
@@ -18,6 +19,7 @@ class ZoneModel {
     required this.roomCreated,
     required this.turn,
     required this.solutionFound,
+    required this.page,
   });
 
   factory ZoneModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> snapshot) {
@@ -30,6 +32,7 @@ class ZoneModel {
       roomCreated: data['RoomCreated'] ?? false,
       turn: (data['Turn'] ?? 0),
       solutionFound: (data['solutionFound'] as Map<String, dynamic>?),
+      page: (data['page'] ?? 0),
     );
   }
 
@@ -42,12 +45,13 @@ class ZoneModel {
       'RoomCreated': roomCreated,
       'Turn': turn,
       'solutionFound': solutionFound,
+      'page':page,
     };
   }
-  Map<String, dynamic> colorsToMap() {
-    return {
-      'Colors': colors,
-    };
-  }
+  // Map<String, dynamic> colorsToMap() {
+  //   return {
+  //     'Colors': colors,
+  //   };
+  // }
 }
 

@@ -1,8 +1,9 @@
 import 'package:findwho/Pages/Exit/exit.dart';
-import 'package:findwho/Pages/Lobby/components/controller/zone_controller.dart';
-import 'package:findwho/Pages/Lobby/components/controller/zone_game_contoller.dart';
+import 'package:findwho/components/controller/zone_controller.dart';
+import 'package:findwho/components/controller/zone_game_contoller.dart';
+import 'package:findwho/components/controller/zone_solution_controller.dart';
 import 'package:findwho/database/fetch_zone.dart';
-import 'package:findwho/database/fetch_data.dart';
+import 'package:findwho/components/allocater.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -14,6 +15,7 @@ class Result extends StatelessWidget {
   final Map<int, int> playerScores = {};
   final ZoneController _zoneController = Get.put(ZoneController());
   final ZoneGameController _zoneGameController = Get.put(ZoneGameController());
+  final ZoneSolutionController _zoneSolutionController = Get.put(ZoneSolutionController());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +25,7 @@ class Result extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Get.to(Exit());
+          Get.to(Exit(last: false,));
         },
         child: const Text("Exit"),
       ),
@@ -65,12 +67,12 @@ class Result extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             image: DecorationImage(
-                              image: AssetImage(solutionRoom[0].img),
+                              image: AssetImage(_zoneSolutionController.zoneSolutionDoc.value!.rooms!['img']),
                               fit: BoxFit.cover,
                             ),
                           ),
                         ),
-                        Text(solutionRoom[0].name)
+                        Text(_zoneSolutionController.zoneSolutionDoc.value!.rooms!['name'])
                       ],
                     )
                         : Column(
@@ -91,12 +93,12 @@ class Result extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             image: DecorationImage(
-                              image: AssetImage(solutionWeapon[0].img),
+                              image: AssetImage(_zoneSolutionController.zoneSolutionDoc.value!.weapons!['img']),
                               fit: BoxFit.cover,
                             ),
                           ),
                         ),
-                        Text(solutionWeapon[0].name)
+                        Text(_zoneSolutionController.zoneSolutionDoc.value!.weapons!['name'])
                       ],
                     )
                         : Column(
@@ -117,12 +119,12 @@ class Result extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             image: DecorationImage(
-                              image: AssetImage(solutionPerson[0].img),
+                              image: AssetImage(_zoneSolutionController.zoneSolutionDoc.value!.persons!['img']),
                               fit: BoxFit.cover,
                             ),
                           ),
                         ),
-                        Text(solutionPerson[0].name)
+                        Text(_zoneSolutionController.zoneSolutionDoc.value!.persons!['name'])
                       ],
                     )
                         : Column(

@@ -68,10 +68,9 @@ class AuthPageUpdater extends GetxController {
 //   String? inGame = authQuerySnapshot.data()!["inGame"];
 //   invitationCode = authQuerySnapshot.data()!["inviteId"];
 //   if (inGame == "true") {
-//     print("chinu");
-//     print(zone['PlayerCount']);
+
 //     await getZone();
-//     print(zone['PlayerCount']);
+
 //     noOfPlayer = zone['PlayerCount'];
 //     await getZoneGame();
 //     await getZoneUserData();

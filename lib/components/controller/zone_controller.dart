@@ -1,6 +1,7 @@
 import 'dart:async';
+
 import 'package:findwho/Pages/Lobby/components/lobby_components.dart';
-import 'package:findwho/Pages/Lobby/components/model/zone_model.dart';
+import 'package:findwho/components/model/zone_model.dart';
 
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -47,6 +48,7 @@ class ZoneController extends GetxController {
           "weapons": 0,
           "persons": 0,
         },
+        "page":0,
         "Colors": {
           "Red": false,
           "Green": false,

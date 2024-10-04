@@ -1,6 +1,6 @@
 import 'package:findwho/Pages/Auth/auth_check.dart';
 import 'package:findwho/Pages/Lobby/components/lobby_components.dart';
-import 'package:findwho/Pages/Lobby/components/model/zone_game_model.dart';
+import 'package:findwho/components/model/zone_game_model.dart';
 
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -85,7 +85,7 @@ class ZoneGameController extends GetxController {
       // Update the specific document by uid
       await zoneFetchCollectionGame.doc(uid).update(updates);
     } catch (e) {
-      print('Error updating zone data: $e');
+      print('Error updating zone game collection: $e');
     } finally {
       isLoadingZoneGameController.value = false;
     }
@@ -102,7 +102,7 @@ class ZoneGameController extends GetxController {
         print('Document does not exist in zone_game_controller');
       }
     } catch (e) {
-      print('Error fetching zone data: $e');
+      print('Error fetching zone game data: $e');
     } finally {
       isLoadingZoneGameController.value = false;
     }
@@ -114,7 +114,7 @@ class ZoneGameController extends GetxController {
       await zoneFetchDocGame.update(updates);
       await fetchZoneGameDocument();
     } catch (e) {
-      print('Error updating zone data: $e');
+      print('Error updating zone game data: $e');
     } finally {
       isLoadingZoneGameController.value = false;
     }

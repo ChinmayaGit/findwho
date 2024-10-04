@@ -23,7 +23,7 @@
 //           return Text('User data not available'); // Handle case where userData is null
 //         } else {
 //           String? gameStatus = userData.inGame;
-//           print("Game Status: $gameStatus");
+
 //
 //           if (gameStatus == 'activeGame') {
 //             return UserPage(); // Replace with your Home widget

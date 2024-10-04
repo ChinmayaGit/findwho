@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:findwho/Pages/Lobby/components/controller/zone_controller.dart';
+import 'package:findwho/components/controller/zone_controller.dart';
 import 'package:findwho/Pages/Lobby/components/lobby_components.dart';
-import 'package:findwho/Pages/Lobby/components/controller/zone_game_contoller.dart';
+import 'package:findwho/components/controller/zone_game_contoller.dart';
 import 'package:findwho/database/fetch_zone.dart';
 import 'package:get/get.dart';
 
@@ -13,10 +13,6 @@ List<AssetInfo> listPerson = [];
 List<AssetInfo> tempListRoom = [];
 List<AssetInfo> tempListWeapon = [];
 List<AssetInfo> tempListPerson = [];
-
-List<AssetInfo> playersRoom = [];
-List<AssetInfo> playersWeapon = [];
-List<AssetInfo> playersPerson = [];
 
 List<AssetInfo> solutionRoom = [];
 List<AssetInfo> solutionWeapon = [];
@@ -61,54 +57,15 @@ Future<void> createItemsData() async {
   tempListPerson.addAll((data['persons'] as List<dynamic>).map(
       (person) => AssetInfo(person['img'], person['name'], person['state'])));
 
-print("chinu");
   await createSolution();
   await makeEqual();
-  await distributeInPlayer("rooms", tempListRoom, _zoneController.zoneDoc.value!.maxPlayers);
-  await distributeInPlayer("weapons", tempListWeapon, _zoneController.zoneDoc.value!.maxPlayers);
-  await distributeInPlayer("persons", tempListPerson, _zoneController.zoneDoc.value!.maxPlayers);
+  await distributeInPlayer("rooms", listRoom, _zoneController.zoneDoc.value!.maxPlayers);
+  await distributeInPlayer("weapons", listWeapon, _zoneController.zoneDoc.value!.maxPlayers);
+  await distributeInPlayer("persons", listPerson, _zoneController.zoneDoc.value!.maxPlayers);
 }
 
 // End
 //This will fetch the data for if game get close and start from where they left
-Future<void> fetchDataIfGameClosed() async {
-  try {
-    DocumentSnapshot<Map<String, dynamic>> combinedDataSnapshot =
-        await FirebaseFirestore.instance
-            .collection("zone")
-            .doc(invitationCode)
-            .collection("data")
-            .doc('combinedData')
-            .get();
-
-    if (combinedDataSnapshot.exists) {
-      Map<String, dynamic> combinedData = combinedDataSnapshot.data()!;
-      List<Map<String, dynamic>> roomData =
-          List<Map<String, dynamic>>.from(combinedData['rooms']);
-      List<Map<String, dynamic>> weaponData =
-          List<Map<String, dynamic>>.from(combinedData['weapons']);
-      List<Map<String, dynamic>> personData =
-          List<Map<String, dynamic>>.from(combinedData['persons']);
-
-      listRoom.clear();
-      listWeapon.clear();
-      listPerson.clear();
-
-      listRoom.addAll(roomData
-          .map((room) => AssetInfo(room['img'], room['name'], room['state'])));
-      listWeapon.addAll(weaponData.map((weapon) =>
-          AssetInfo(weapon['img'], weapon['name'], weapon['state'])));
-      listPerson.addAll(personData.map((person) =>
-          AssetInfo(person['img'], person['name'], person['state'])));
-
-      print('Data retrieved from Firestore and stored successfully.');
-    } else {
-      print('Combined document does not exist in Firestore.');
-    }
-  } catch (error) {
-    print('Error fetching and storing data from Firestore: $error');
-  }
-}
 
 createSolution() async {
   // Randomly select one item from listRoom
@@ -144,59 +101,36 @@ createSolution() async {
     solutionPerson.clear(); // Clear the list before adding the new item
     solutionPerson.add(person);
   }
-  print("chinu3");
   FirebaseFirestore.instance
       .collection("zone")
       .doc(invitationCode)
       .collection('solution')
       .doc("combinedSolution").set(
     {
-      "rooms": {
-        "img": solutionRoom[0].img,
-        "name": solutionRoom[0].name,
-        "state": solutionRoom[0].state,
-      },
-      "weapons": {
-        "img": solutionWeapon[0].img,
-        "name": solutionWeapon[0].name,
-        "state": solutionWeapon[0].state,
-      },
-      "persons": {
-        "img": solutionPerson[0].img,
-        "name": solutionPerson[0].name,
-        "state": solutionPerson[0].state,
-      }
+      "rooms":
+        {
+          "img": solutionRoom[0].img,
+          "name": solutionRoom[0].name,
+          "state": solutionRoom[0].state,
+        },
+      "weapons":
+        {
+          "img": solutionWeapon[0].img,
+          "name": solutionWeapon[0].name,
+          "state": solutionWeapon[0].state,
+        },
+      "persons":
+        {
+          "img": solutionPerson[0].img,
+          "name": solutionPerson[0].name,
+          "state": solutionPerson[0].state,
+        }
     },);
 
 }
 
 //as only
-fetchSolutionIfGameClosed() async{
-  try {
-    DocumentSnapshot<Map<String, dynamic>> comboSolutionSnapshot =
-        await FirebaseFirestore.instance
-        .collection("zone")
-        .doc(invitationCode)
-        .collection('solution')
-        .doc("combinedSolution")
-        .get();
 
-    if (comboSolutionSnapshot.exists) {
-      Map<String, dynamic> comboSolutionData = comboSolutionSnapshot.data()!;
-      Map<String, dynamic> roomData = comboSolutionData['rooms'];
-      Map<String, dynamic> weaponData = comboSolutionData['weapons'];
-      Map<String, dynamic> personData = comboSolutionData['persons'];
-
-      solutionRoom.add(AssetInfo(roomData['img'], roomData['name'], roomData['state']));
-      solutionWeapon.add(AssetInfo(weaponData['img'], weaponData['name'], weaponData['state']));
-      solutionPerson.add(AssetInfo(personData['img'], personData['name'], personData['state']));
-    }
-
-    print('Data retrieved from Firestore and stored successfully.');
-  } catch (error) {
-    print('Error fetching and storing data from Firestore: $error');
-  }
-}
 
 makeEqual() async {
   // Calculate size of each sublist
@@ -235,19 +169,24 @@ makeEqual() async {
 
   List<Map<String, dynamic>> roomData =
   listRoom.map((room) => room.toMap()).toList();
+
   List<Map<String, dynamic>> roomSolutionData =
   solutionRoom.map((room) => room.toMap()).toList();
+
   List<Map<String, dynamic>> weaponData =
   listWeapon.map((weapon) => weapon.toMap()).toList();
+
   List<Map<String, dynamic>> weaponSolutionData =
   solutionWeapon.map((weapon) => weapon.toMap()).toList();
+
   List<Map<String, dynamic>> personData =
   listPerson.map((person) => person.toMap()).toList();
+
   List<Map<String, dynamic>> personSolutionData =
   solutionPerson.map((person) => person.toMap()).toList();
   Random random = Random();
 
-// Shuffle function to shuffle a list
+
   // Shuffle function to shuffle a list
   List<T> shuffleList<T>(List<T> list) {
     for (int i = list.length - 1; i > 0; i--) {
@@ -357,7 +296,70 @@ storePlayerData(Map<String, List<Map<String, dynamic>>> players, String id) {
         .update(updateData);
   });
 }
-
+// fetchSolutionIfGameClosed() async{
+//   try {
+//     DocumentSnapshot<Map<String, dynamic>> comboSolutionSnapshot =
+//     await FirebaseFirestore.instance
+//         .collection("zone")
+//         .doc(invitationCode)
+//         .collection('solution')
+//         .doc("combinedSolution")
+//         .get();
+//
+//     if (comboSolutionSnapshot.exists) {
+//       Map<String, dynamic> comboSolutionData = comboSolutionSnapshot.data()!;
+//       Map<String, dynamic> roomData = comboSolutionData['rooms'];
+//       Map<String, dynamic> weaponData = comboSolutionData['weapons'];
+//       Map<String, dynamic> personData = comboSolutionData['persons'];
+//
+//       solutionRoom.add(AssetInfo(roomData['img'], roomData['name'], roomData['state']));
+//       solutionWeapon.add(AssetInfo(weaponData['img'], weaponData['name'], weaponData['state']));
+//       solutionPerson.add(AssetInfo(personData['img'], personData['name'], personData['state']));
+//     }
+//
+//     print('Data retrieved from Firestore and stored successfully.');
+//   } catch (error) {
+//     print('Error fetching and storing data from Firestore: $error');
+//   }
+// }
+// Future<void> fetchDataIfGameClosed() async {
+//   try {
+//     DocumentSnapshot<Map<String, dynamic>> combinedDataSnapshot =
+//     await FirebaseFirestore.instance
+//         .collection("zone")
+//         .doc(invitationCode)
+//         .collection("data")
+//         .doc('combinedData')
+//         .get();
+//
+//     if (combinedDataSnapshot.exists) {
+//       Map<String, dynamic> combinedData = combinedDataSnapshot.data()!;
+//       List<Map<String, dynamic>> roomData =
+//       List<Map<String, dynamic>>.from(combinedData['rooms']);
+//       List<Map<String, dynamic>> weaponData =
+//       List<Map<String, dynamic>>.from(combinedData['weapons']);
+//       List<Map<String, dynamic>> personData =
+//       List<Map<String, dynamic>>.from(combinedData['persons']);
+//
+//       listRoom.clear();
+//       listWeapon.clear();
+//       listPerson.clear();
+//
+//       listRoom.addAll(roomData
+//           .map((room) => AssetInfo(room['img'], room['name'], room['state'])));
+//       listWeapon.addAll(weaponData.map((weapon) =>
+//           AssetInfo(weapon['img'], weapon['name'], weapon['state'])));
+//       listPerson.addAll(personData.map((person) =>
+//           AssetInfo(person['img'], person['name'], person['state'])));
+//
+//       print('Data retrieved from Firestore and stored successfully.');
+//     } else {
+//       print('Combined document does not exist in Firestore.');
+//     }
+//   } catch (error) {
+//     print('Error fetching and storing data from Firestore: $error');
+//   }
+// }
 
 // offline
 // class AssetInfo {

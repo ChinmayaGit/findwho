@@ -94,11 +94,12 @@ class _AuthPageState extends State<AuthPage> {
                             context: context,
                           );
                         }
-                        print(success);
+                        // print(success);
                         if (success == "true") {
                           _nameController.clear();
                           _passwordController.clear();
                           Get.to(SelectBoard());
+                          //todo:fix new login if in game
                         } else {
                           customToast(msg: success!, context: context);
                         }

@@ -1,11 +1,11 @@
 import 'dart:math';
 import 'package:findwho/Pages/Auth/components/user_data_controller.dart';
-import 'package:findwho/Pages/Lobby/components/controller/zone_controller.dart';
+import 'package:findwho/components/controller/zone_controller.dart';
 import 'package:findwho/Pages/lobby/waiting_lobby.dart';
 import 'package:findwho/components/game_status.dart';
 import 'package:findwho/components/colors.dart';
 import 'package:findwho/Pages/Lobby/components/lobby_components.dart';
-import 'package:findwho/Pages/Lobby/components/controller/zone_game_contoller.dart';
+import 'package:findwho/components/controller/zone_game_contoller.dart';
 import 'package:findwho/components/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';

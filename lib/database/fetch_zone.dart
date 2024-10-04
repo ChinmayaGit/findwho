@@ -4,7 +4,7 @@
 // import 'package:findwho/Pages/Lobby/components/lobby_components.dart';
 // import 'package:findwho/Pages/Auth/auth_check.dart';
 // import 'package:flutter/material.dart';
-// import 'fetch_data.dart';
+// import 'allocater.dart';
 // import 'package:get/get.dart';
 // import "package:firebase_auth/firebase_auth.dart";
 

@@ -1,14 +1,16 @@
+import 'package:findwho/Drawer/my_drawer.dart';
 import 'package:findwho/Pages/Auth/components/user_data_controller.dart';
+import 'package:findwho/Pages/Exit/exit.dart';
 import 'package:findwho/Pages/Home/home.dart';
-import 'package:findwho/Pages/Lobby/components/controller/zone_controller.dart';
-import 'package:findwho/Pages/Lobby/components/controller/zone_game_contoller.dart';
+import 'package:findwho/components/controller/zone_controller.dart';
+import 'package:findwho/components/controller/zone_game_contoller.dart';
 import 'package:findwho/components/game_status.dart';
 import 'package:findwho/components/colors.dart';
 import 'package:findwho/Pages/Lobby/components/lobby_components.dart';
 import 'package:findwho/components/toast.dart';
 import 'package:findwho/Pages/Auth/auth_check.dart';
 
-import 'package:findwho/database/fetch_data.dart';
+import 'package:findwho/components/allocater.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -45,18 +47,29 @@ class _WaitingLobbyState extends State<WaitingLobby> {
                 title: Text("Lobby"),
                 centerTitle: true,
                 actions: [
+                  // IconButton(
+                  //   icon: Icon(Icons.refresh),
+                  //   onPressed: () {
+                  //     print(_zoneGameController.zoneGameCollection.length);
+                  //     setState(() {
+                  //       // _zoneDataFuture = getZoneGame(); // Trigger data refresh
+                  //     });
+                  //   },
+                  // ),
                   IconButton(
-                    icon: Icon(Icons.refresh),
+                    icon: Icon(Icons.exit_to_app,color: Colors.red,),
                     onPressed: () {
                       print(_zoneGameController.zoneGameCollection.length);
                       setState(() {
-                        // _zoneDataFuture = getZoneGame(); // Trigger data refresh
+                     Get.to(Exit(last: false,));
                       });
                     },
                   ),
                 ],
               ),
-
+        // drawer: Drawer(
+        //   child: myDrawer(context:context,outside: true),
+        // ),
               // floatingActionButton: FloatingActionButton(onPressed: (){
               //   decideTurn();
               // },),

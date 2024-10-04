@@ -1,6 +1,6 @@
 import 'package:findwho/Pages/Auth/auth_check.dart';
 import 'package:findwho/Pages/Lobby/components/lobby_components.dart';
-import 'package:findwho/Pages/Lobby/components/model/zone_data_model.dart';
+import 'package:findwho/components/model/zone_data_model.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -33,9 +33,9 @@ class ZoneDataController extends GetxController {
     try {
       await zoneFetchDocData
           .set({
-        "persons": {},
-        "rooms": {},
-        "weapons": {},
+        "persons": [],
+        "rooms": [],
+        "weapons": [],
       });
     } catch (e) {
       print('Error : $e');
@@ -60,19 +60,44 @@ class ZoneDataController extends GetxController {
     }
   }
 
-  Future<void> updateZoneDataDocument(Map<String, dynamic> updates) async {
-    isLoadingZoneDataController.value = true;
+  // Future<void> updateZoneDataDocument(Map<String, dynamic> updates) async {
+  //   isLoadingZoneDataController.value = true;
+  //   try {
+  //     await zoneFetchDocData.update(updates);
+  //     // Fetch the updated document to update the local state
+  //     await fetchZoneDataDocument();
+  //   } catch (e) {
+  //     print('Error updating zone Data data: $e');
+  //   } finally {
+  //     isLoadingZoneDataController.value = false;
+  //   }
+  // }
+  Future<void> updateZoneDataDocument(int index, bool newState, String name) async {
     try {
-      await zoneFetchDocData.update(updates);
-      // Fetch the updated document to update the local state
-      await fetchZoneDataDocument();
+      DocumentSnapshot<Map<String, dynamic>> docSnapshot = await zoneFetchDocData.get();
+      if (docSnapshot.exists) {
+        Map<String, dynamic> data = docSnapshot.data()!;
+        List<dynamic> weapons = data[name];
+
+        // Check if the index is within the bounds of the array
+        if (index >= 0 && index < weapons.length) {
+          // Update the specific element
+          weapons[index]['state'] = true;
+
+          // Write the updated array back to Firestore
+          await zoneFetchDocData.update({name: weapons});
+          print('Updated weapons: $weapons');
+          print('New state: $newState');
+        } else {
+          print('Index out of bounds');
+        }
+      } else {
+        print('Document does not exist');
+      }
     } catch (e) {
-      print('Error updating zone data: $e');
-    } finally {
-      isLoadingZoneDataController.value = false;
+      print('Error updating weapon state: $e');
     }
   }
-
   void subscribeToUpdates() {
     zoneFetchDocData.snapshots().listen((snapshot) {
       if (snapshot.exists) {
