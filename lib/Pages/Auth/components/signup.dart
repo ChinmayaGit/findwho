@@ -8,7 +8,7 @@ signUp(
   try {
     UserCredential userCredential = await FirebaseAuth.instance
         .createUserWithEmailAndPassword(
-        email: "$name@gmail.com", password: password)
+        email: name, password: password)
         .then((value) {
       customToast(msg: 'Welcome to findWho', context: context);
       return value;
@@ -17,7 +17,7 @@ signUp(
         .collection("users")
         .doc(userCredential.user!.uid)
         .set({
-      "userName": "$name@gmail.com",
+      "userName": name,
       "pass": password,
       "time": DateTime.now(),
       "inGame": GameStatusManager.idle,

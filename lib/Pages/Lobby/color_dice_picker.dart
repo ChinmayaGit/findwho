@@ -46,10 +46,11 @@ class _ColorDicePickerState extends State<ColorDicePicker> {
   }
 
   void _initializeZone() async {
-    await _zoneController
-        .fetchZoneDocument(); // Wait for the data fetch to complete
+   // Wait for the data fetch to complete
 
     if (widget.maxPlayer == 0) {
+      await _zoneController
+          .fetchZoneDocument();
       if (_zoneController.zoneDoc.value != null) {
         Map<String, dynamic>? colorsMap = _zoneController.zoneDoc.value?.colors;
         List<String> trueColors = [];

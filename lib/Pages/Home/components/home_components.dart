@@ -18,14 +18,13 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 //now will always stays 1 because if dice is high he will assigned 1 (decideTurn())
 RxInt now = RxInt(1);
 final ZoneController _zoneController = Get.put(ZoneController());
 final ZoneGameController _zoneGameController = Get.put(ZoneGameController());
 final ZoneDataController _zoneDataController = Get.put(ZoneDataController());
 final ZoneSolutionController _zoneSolutionController =
-Get.put(ZoneSolutionController());
+    Get.put(ZoneSolutionController());
 
 //Layer 1
 Widget topBar(_scaffoldKey, context) {
@@ -64,7 +63,6 @@ Widget topBar(_scaffoldKey, context) {
               ),
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.only(left: 22.0),
             child: const CircleAvatar(
@@ -72,7 +70,6 @@ Widget topBar(_scaffoldKey, context) {
               child: Icon(Icons.mic),
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.only(bottom: 55.0),
             child: Container(
@@ -90,14 +87,16 @@ Widget topBar(_scaffoldKey, context) {
                 padding: const EdgeInsets.fromLTRB(10, 10, 20, 10),
                 child: Text(
                   "Now: \nPlayer ${_zoneController.zoneDoc.value?.turn.toString()}",
-                  style: TextStyle(color:_zoneController.zoneDoc.value?.turn==_zoneGameController.zoneGameDoc.value!.playerTurn?stringToColor(_zoneGameController.zoneGameDoc.value!.color):Colors.grey ),
-
+                  style: TextStyle(
+                      color: _zoneController.zoneDoc.value?.turn ==
+                              _zoneGameController.zoneGameDoc.value!.playerTurn
+                          ? stringToColor(
+                              _zoneGameController.zoneGameDoc.value!.color)
+                          : Colors.grey),
                 ),
               ),
-
             ),
           ),
-
         ],
       ),
     ),
@@ -123,31 +122,30 @@ Widget gridContent<T extends GameItem>({
       T gameItems = objects![index];
       return GestureDetector(
         onTap: () async {
-          if(gameItems.state==false){
-          if (_zoneGameController.zoneGameDoc.value?.playerTurn ==
-              _zoneController.zoneDoc.value?.turn) {
-            // Handle onTap logic based on the type of T (Room, Weapon, or Person)
-            if (gameItems is RoomModel) {
-              // Handle Room specific logic
-              checkTurn(gameItems, RoomStatusManager.rooms, index, context);
-              print('Room tapped: ${gameItems.name}');
-            } else if (gameItems is WeaponModel) {
-              // Handle Weapon specific logic
-              checkTurn(gameItems, RoomStatusManager.weapons, index, context);
-              print('Weapon tapped: ${gameItems.name}');
-            } else if (gameItems is PersonModel) {
-              // Handle Person specific logic
-              checkTurn(gameItems, RoomStatusManager.persons, index, context);
-              print('Person tapped: ${gameItems.name}');
+          if (gameItems.state == false) {
+            if (_zoneGameController.zoneGameDoc.value?.playerTurn ==
+                _zoneController.zoneDoc.value?.turn) {
+              // Handle onTap logic based on the type of T (Room, Weapon, or Person)
+              if (gameItems is RoomModel) {
+                // Handle Room specific logic
+                checkTurn(gameItems, RoomStatusManager.rooms, index, context);
+                print('Room tapped: ${gameItems.name}');
+              } else if (gameItems is WeaponModel) {
+                // Handle Weapon specific logic
+                checkTurn(gameItems, RoomStatusManager.weapons, index, context);
+                print('Weapon tapped: ${gameItems.name}');
+              } else if (gameItems is PersonModel) {
+                // Handle Person specific logic
+                checkTurn(gameItems, RoomStatusManager.persons, index, context);
+                print('Person tapped: ${gameItems.name}');
+              }
+            } else {
+              Get.snackbar('WAIT:',
+                  'Now Player ${_zoneController.zoneDoc.value?.turn} is Playing wait for your turn',
+                  colorText: Colors.white);
             }
-          } else {
-            Get.snackbar('WAIT:',
-                'Now Player ${_zoneController.zoneDoc.value?.turn} is Playing wait for your turn',
-                colorText: Colors.white);
-          }
-          // print(_zoneGameController.zoneGameDoc.value?.playerTurn);
-          // print("xyz");
-
+            // print(_zoneGameController.zoneGameDoc.value?.playerTurn);
+            // print("xyz");
           }
         },
         child: gridCard(gameItems, index),
@@ -194,13 +192,13 @@ checkTurn(gameItems, name, index, context) {
                 child: GestureDetector(
                   onTap: () async {
                     //updateing
-                    print("chinuS");
-                    print(gameItems.name);
-                    print(name);
-                    print(RoomStatusManager.rooms);
-                    print(_zoneSolutionController
-                        .zoneSolutionDoc.value!.rooms?['name']);
-                    print("chinuE");
+                    // print("chinuS");
+                    // print(gameItems.name);
+                    // print(name);
+                    // print(RoomStatusManager.rooms);
+                    // print(_zoneSolutionController
+                    //     .zoneSolutionDoc.value!.rooms?['name']);
+                    // print("chinuE");
 
                     if (gameItems.name ==
                         (name == RoomStatusManager.rooms
@@ -211,8 +209,6 @@ checkTurn(gameItems, name, index, context) {
                                     .zoneSolutionDoc.value?.weapons!['name']
                                 : _zoneSolutionController
                                     .zoneSolutionDoc.value?.persons!['name'])) {
-
-
                       // await _zoneController.updateZoneDocument({
                       //   "solutionFound": {
                       //     name:
@@ -230,17 +226,16 @@ checkTurn(gameItems, name, index, context) {
                       }, SetOptions(merge: true));
 
                       name == RoomStatusManager.rooms
-                          ?   _zoneController.updateZoneDocument({
-                        "page": 1,
-                      })
+                          ? _zoneController.updateZoneDocument({
+                              "page": 1,
+                            })
                           : name == RoomStatusManager.weapons
-                              ?   _zoneController.updateZoneDocument({
-                        "page": 2,
-                      })
-                              :  _zoneController.updateZoneDocument({
-                        "page": 3,
-                      });
-
+                              ? _zoneController.updateZoneDocument({
+                                  "page": 2,
+                                })
+                              : _zoneController.updateZoneDocument({
+                                  "page": 3,
+                                });
 
                       Get.snackbar('WOW!:', 'You found the $name',
                           colorText: Colors.white);
@@ -253,7 +248,8 @@ checkTurn(gameItems, name, index, context) {
                       // print(name + index.toString());
                       await _zoneController.updateZoneDocument({
                         'Turn': _zoneController.zoneDoc.value?.maxPlayers ==
-                            _zoneGameController.zoneGameDoc.value?.playerTurn
+                                _zoneGameController
+                                    .zoneGameDoc.value?.playerTurn
                             ? 1
                             : (_zoneController.zoneDoc.value?.turn)! + 1,
                       });
@@ -398,6 +394,74 @@ Widget backGlassContainer({required bool isLeft}) {
     ),
   );
 }
+
+Widget myTurn() {
+  return Positioned(
+    bottom: 150,
+    child: Container(
+      height: 100, // Height for the outer container
+      width: 145,
+      decoration: ShapeDecoration(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18.0),
+        ),
+        color: Colors.white,
+      ),
+      child: Column(
+        children: [
+          Expanded(child: _buildRow()),
+          Expanded(child: _buildRowTwo()),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _buildRow() {
+  return Row(
+    children: [
+      _buildColorContainer("Orange"),
+      _buildColorContainer("Blue"),
+      _buildColorContainer("Green"),
+
+    ],
+  );
+}
+Widget _buildRowTwo() {
+  return Row(
+    children: [
+      _buildColorContainer("Purple"),
+      _buildColorContainer("Red"),
+      _buildColorContainer("Yellow"),
+
+    ],
+  );
+}
+
+
+Widget _buildColorContainer(String color) {
+
+  bool isTurn = _zoneController.zoneDoc.value?.turn == _zoneGameController.zoneGameDoc.value!.playerTurn;
+  Color containerColor = isTurn && _zoneGameController.zoneGameDoc.value!.color == color
+      ? stringToColor(_zoneGameController.zoneGameDoc.value!.color)
+      : Colors.grey;
+
+  return Expanded(
+    child: Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        height: 40, // Explicit height for each color box
+        decoration: ShapeDecoration(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18.0),
+          ),
+          color: containerColor,
+        ),
+      ),
+    ),
+  );
+}
+
 
 //Layer 3
 class SwipeableCardDeck<T extends GameItem> extends StatelessWidget {

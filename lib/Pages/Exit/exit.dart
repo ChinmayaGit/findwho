@@ -19,8 +19,37 @@ class Exit extends StatelessWidget {
 
   final TextEditingController _closeController = TextEditingController();
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
-  final ZoneController _zoneController = Get.put(ZoneController());
+  // final ZoneController _zoneController = Get.put(ZoneController());
   final UserController _userController = Get.put(UserController());
+
+  // Function to delete all documents in a subcollection
+  Future<void> deleteSubCollection(DocumentReference parentDocRef, String subCollectionPath) async {
+    CollectionReference subCollection = parentDocRef.collection(subCollectionPath);
+    QuerySnapshot querySnapshot = await subCollection.get();
+
+    // Create a WriteBatch for deleting documents in the subcollection
+    WriteBatch batch = firestore.batch();
+
+    // Iterate through each document and add to the batch
+    for (var doc in querySnapshot.docs) {
+      batch.delete(doc.reference);
+    }
+
+    // Commit the batch
+    await batch.commit();
+  }
+
+// Function to delete a zone document and its game subcollection
+  Future<void> deleteZoneAndGames(String invitationCode) async {
+    DocumentReference zoneDocRef = firestore.collection('zone').doc(invitationCode);
+
+    // Delete the game subcollection first
+    await deleteSubCollection(zoneDocRef, 'game');
+
+    // Now delete the zone document
+    await zoneDocRef.delete();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -58,19 +87,29 @@ class Exit extends StatelessWidget {
                       // DocumentReference docRef =
                       // firestore.collection('zone').doc(invitationCode);
                       // await _deleteCollection(docRef);
+                      invitationCode="";
                       if(last == false){
-                        DocumentReference docRef =
-                      firestore.collection('zone').doc(invitationCode);
+                      //   DocumentReference docRef =
+                      // firestore.collection('zone').doc(invitationCode);
+                      //
+                      // await docRef.delete();
+                        DocumentReference zoneDocRef = firestore.collection('zone').doc(invitationCode);
 
-                      await docRef.delete();
+                        // Delete the game subcollection
+                        await deleteSubCollection(zoneDocRef, 'game');
 
+                        // Now delete the zone document
+                        await zoneDocRef.delete();
                       _userController.updateUserDocument({
                         "inGame": GameStatusManager.idle,
                         "inviteId": "NA",
                       });
-                      _zoneController.updateZoneDocument({
-                        "maxPlayers": _zoneController.zoneDoc.value!.maxPlayers - 1,
-                      });
+
+                        // await zoneDocRef // Specify the document ID
+                        //     .update({
+                        //   "maxPlayers": _zoneController.zoneDoc.value!.maxPlayers - 1,
+                        // });
+
                       }else{
                         _userController.updateUserDocument({
                           "inGame": GameStatusManager.idle,
@@ -97,8 +136,9 @@ class Exit extends StatelessWidget {
                         //   "inviteId": "NA",
                         // });
                       // }
-                      Get.to(() => SelectBoard());
+                      Get.offAll(SelectBoard());
 
+                     //todo empty the controller
                       GFToast.showToast(
                         "The game has ended",
                         context,

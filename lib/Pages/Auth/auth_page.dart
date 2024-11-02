@@ -18,13 +18,13 @@ class _AuthPageState extends State<AuthPage> {
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
+  final TextEditingController _rePasswordController = TextEditingController();
   AuthPageUpdater authCheck = Get.put(AuthPageUpdater());
 
   String? success;
 
   customTextField(Icon icon, String lName, String hName,
-      TextEditingController controllers) {
+      TextEditingController controllers, {bool isPassword = false}) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -36,6 +36,7 @@ class _AuthPageState extends State<AuthPage> {
         child: TextFormField(
           autofocus: false,
           controller: controllers,
+          obscureText: isPassword,  // Obscure text for password fields
           validator: (value) {
             if (value!.isEmpty) return 'This field cannot be empty';
             return null;
@@ -71,9 +72,21 @@ class _AuthPageState extends State<AuthPage> {
                 height: 180,
               ),
               customTextField(
-                  const Icon(Icons.person), "username", "username", _nameController),
-              customTextField(const Icon(Icons.password), "password",
-                  "Password", _passwordController),
+                  const Icon(Icons.person), "Email", "Enter your email", _nameController, isPassword: false ),
+              customTextField(
+                  const Icon(Icons.password),
+                  "Password",
+                  "Enter your password",
+                  _passwordController,
+                  isPassword: true  // Set true for password fields
+              ),
+              authCheck.signUp.value==true?customTextField(
+                  const Icon(Icons.password),
+                  "Confirm Password",
+                  "ReEnter your Password",
+                  _rePasswordController,
+                  isPassword: true  // Set true for password fields
+              ):Container(),
               const SizedBox(
                 height: 20,
               ),
