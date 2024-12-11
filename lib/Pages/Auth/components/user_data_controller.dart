@@ -19,6 +19,8 @@ class UserController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    print(authUid);
+    print("UserControllerChinu");
     fetchUserDocument(); // Fetch initial user data when controller is initialized
     subscribeToUpdates(); // Subscribe to real-time updates
   }

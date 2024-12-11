@@ -12,28 +12,35 @@ import 'package:get/get.dart';
 FirebaseAuth auth = FirebaseAuth.instance;
 String authUid = FirebaseAuth.instance.currentUser!.uid;
 
+class AuthPageUpdater extends GetxController {
+  RxBool signUp = false.obs;
+  RxBool loading = false.obs;
+}
 
-  Widget authCheck() {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return customToast(
-            msg: 'Error: ${snapshot.error}',
-            context: context,
-          );
+Widget authCheck() {
+  //getting users
+  return StreamBuilder<User?>(
+    stream: FirebaseAuth.instance.authStateChanges(),
+    builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
+      //checking internet
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(child: Text("no internet.."));
+      } else if (snapshot.hasError) {
+        return customToast(
+          msg: 'Error: ${snapshot.error}',
+          context: context,
+        );
+      } else {
+        //checking if user exist
+        if (snapshot.hasData && snapshot.data != null) {
+          return checkGameStatus();
         } else {
-          if (snapshot.hasData && snapshot.data != null) {
-            return checkGameStatus();
-          } else {
-            return AuthPage();
-          }
+          return AuthPage();
         }
-      },
-    );
-  }
+      }
+    },
+  );
+}
 
 Widget checkGameStatus() {
   final UserController _userController = Get.put(UserController());
@@ -46,8 +53,9 @@ Widget checkGameStatus() {
           CircularProgressIndicator(),
           Text("AuthPage")
         ],
-      )); // Show loading indicator while fetching data
+      ));
     }  else {
+      print(userData!.inGame);
       String? gameStatus = userData!.inGame;
       if (gameStatus == GameStatusManager.activeGame) {
         return const Home(); // Replace with your Home widget
@@ -60,30 +68,7 @@ Widget checkGameStatus() {
   }
   );
 }
-class AuthPageUpdater extends GetxController {
-  RxBool signUp = false.obs;
-  RxBool loading = false.obs;
-}
-// Future<void> checkInGame() async {
-//   String? inGame = authQuerySnapshot.data()!["inGame"];
-//   invitationCode = authQuerySnapshot.data()!["inviteId"];
-//   if (inGame == "true") {
 
-//     await getZone();
 
-//     noOfPlayer = zone['PlayerCount'];
-//     await getZoneGame();
-//     await getZoneUserData();
-//     await fetchDataIfGameClosed();
-//     await fetchSolutionIfGameClosed();
-//     Get.to(() => const Home());
-//   } else if (inGame == "waiting") {
-//     await getZone();
-//     noOfPlayer = zone['PlayerCount'];
-//     await getZoneGame();
-//     await getZoneUserData();
-//     Get.to(() => const WaitingLobby());
-//   } else {
-//     Get.to(() => SelectBoard());
-//   }
-// }
+
+

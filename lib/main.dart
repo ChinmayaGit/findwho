@@ -21,14 +21,10 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
-  void initState() {
-    super.initState();
-    // getZone();
-  }
-
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      title: 'FindWho',
       debugShowCheckedModeBanner: false,
       home: Scaffold(body: authCheck()),
     );
